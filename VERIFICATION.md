@@ -2,7 +2,7 @@
 
 Status as of v0.1.0 (28 September 2026). "Test" names are in `test/e2e/*.spec.js` (Playwright) and `test/unit/core.test.js` (`node --test`).
 
-Last local run: 9 unit and 75 e2e tests passed, in Chromium desktop and in a Pixel 7 touch profile. Firefox and WebKit are set up to run in CI (`ALL_BROWSERS=1`, in `ci/ci.yml`), but haven't been run yet (see TASKS.md).
+Local runs: 9 unit and 75 e2e tests pass in Chromium desktop and a Pixel 7 touch profile. CI (`.github/workflows/ci.yml`) runs the same suite in Chromium, Firefox, WebKit and an iPhone profile: 221 passed on 28 September 2026. The first CI runs found a Firefox tab-order assumption and a timing-based WebKit check in the tests, which were rewritten to be deterministic, and one real WebKit bug (a stale reduced-motion media query), which was fixed in `src/minisearch.js`.
 
 Key: **Met** = implemented and covered by an automated test. **Met (manual)** = implemented, but needs human or device checking to fully confirm.
 
@@ -52,9 +52,9 @@ Key: **Met** = implemented and covered by an automated test. **Met (manual)** = 
 | NF6.4 | Never traps focus | Met | `NF6.4 Tab moves focus normally unless navigating matches` |
 | NF6.5 | Combobox/listbox/live region | Met | `NF6.5 combobox, listbox and live region semantics`, `F3.4` (`aria-activedescendant`) |
 | NF7 | Reduced motion, colour scheme, remembered capture choice | Met | `F1.3`, `F4.4 reduced motion…`, `NF6.2/NF7…`, `prefers-color-scheme` in styles |
-| NF8 | Current major browsers | Met (manual) | Chromium tested locally. `ci/ci.yml` runs Firefox and WebKit once it's switched on. There's a graceful fallback without the Highlight API. |
+| NF8 | Current major browsers | Met | Full suite runs in CI in Chromium, Firefox and WebKit, plus an iPhone profile. There's a graceful fallback without the Highlight API. |
 | D1 | Component published | Partly | `dist/minisearch.min.js` is committed and servable through jsDelivr from GitHub. **npm publish and the v0.1.0 tag are pending with Dave** (TASKS.md). |
-| D2 | Docs with live demo | Met, once Pages is on | `docs/` (9 pages), covered by `D2 …` tests. **GitHub Pages needs turning on** (TASKS.md). |
+| D2 | Docs with live demo | Met | Live at https://davesant.github.io/minisearch/ (9 pages), covered by `D2 …` tests. |
 
 ## Independent review
 
