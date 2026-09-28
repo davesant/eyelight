@@ -15,6 +15,7 @@
 - [ ] Consider showing a "no matching pages" row when the index loads but nothing matches (currently the list just hides and the live region says "0 pages suggested").
 - [ ] Add an axe-core automated check to the e2e suite (couldn't be installed in the first build environment; contrast is checked by a unit test instead).
 - [ ] Add a `package-lock.json` once `npm install` has been run with registry access, and switch CI to `npm ci`.
+- [ ] Add Ctrl+K (Cmd+K on macOS) to open the search, as VitePress, docmd and Docusaurus search do. This is an exception to F1.6 (modifier keys are never captured), so update `SPEC.md`, tests and `VERIFICATION.md` together. Points to decide: on by default or opt-in via config; skip it if the host's handler has already called `preventDefault()` (F1.7) or it's in `ignoreKeys`; it should still work when focus is in a form field (unlike type-anywhere); it overrides the browser's own Ctrl+K (focus the search/address bar), so document that; and whether the idle hint should show the shortcut.
 
 ## Done
 
