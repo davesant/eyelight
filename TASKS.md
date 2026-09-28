@@ -2,7 +2,6 @@
 
 ## Needs Dave
 
-- [ ] **Rename the GitHub repo to `eyelight`** (Settings > General > Repository name) straight after the rename PR is merged. GitHub redirects the old repo and git URLs, but not the GitHub Pages URL, so the docs move from `davesant.github.io/minisearch/` to `davesant.github.io/eyelight/` with no redirect. Then check Pages is still on (`main` / `/docs`) and the live docs load.
 - [ ] **Publish to npm.** Run `npm login`, then `npm publish --access public` (package `@davesant/eyelight`). The build environment used so far couldn't reach the npm registry.
 - [ ] **Tag v0.1.0** (create a GitHub release). Then switch the CDN URL in the README and `docs/index.html` from `@main` to `@v0.1`, because `@main` is cached by jsDelivr for up to 12 hours and changes without warning.
 
@@ -24,6 +23,7 @@
 
 ## Done
 
+- [x] Renamed the GitHub repo to `eyelight`; Pages still on (`main` / `/docs`) and docs live at https://davesant.github.io/eyelight/ (2026-09-28)
 - [x] New configurable defaults: bar at the bottom left (`position`), in-page search first with site pages on Enter (`startMode`), block cursor (`caret`), marker pen highlight (`highlight`). Size budget raised from 12 KB to 13 KB (2026-09-28)
 - [x] Renamed from Minisearch to Eyelight: package `@davesant/eyelight`, `<eyelight-ui>`, `eyelight-index` CLI and index file, `window.eyelightConfig`, `data-eyelight-*` attributes, `--eyelight-*` CSS custom properties (formerly `--ms-*`) (2026-09-28)
 - [x] GitHub Pages turned on - docs live at https://davesant.github.io/eyelight/ (2026-09-28)
