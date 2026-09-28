@@ -1,5 +1,5 @@
-// Eyelight - type-anywhere search for any website.
-// https://github.com/davesant/eyelight  (MIT)
+// Minimarker - type-anywhere search for any website.
+// https://github.com/davesant/minimarker  (MIT)
 //
 // Requirement IDs (F1.1 etc.) refer to SPEC.md.
 
@@ -14,9 +14,9 @@ export const VERSION = '0.1.0';
 export const DEFAULTS = {
   prompt: '',
   include: 'main, [role=main]',
-  exclude: '[data-eyelight-ignore]',
-  noCapture: '[data-eyelight-nocapture]',
-  index: '/eyelight-index.json',
+  exclude: '[data-minimarker-ignore]',
+  noCapture: '[data-minimarker-nocapture]',
+  index: '/minimarker-index.json',
   sitemap: '/sitemap.xml',
   pages: null,
   theme: 'auto',
@@ -66,7 +66,7 @@ const MARKER_FILTER = '<filter id="el-mf" x="-20%" y="-50%" width="140%" height=
   'scale="30" in="SourceGraphic" in2="warp"/></filter>';
 const SVGNS = 'http://www.w3.org/2000/svg';
 
-const STORE = 'eyelight.capture';
+const STORE = 'minimarker.capture';
 const WIDGET_ROLES = new Set(('textbox searchbox combobox listbox menu menubar grid tree treegrid tablist slider ' +
   'spinbutton radiogroup application').split(' '));
 const NEVER_START = new Set([' ', '/', "'"]); // F1.8: keep page scrolling, button activation and Firefox Quick Find
@@ -77,9 +77,9 @@ let warned = false;
 function warn(e) {
   if (warned) return;
   warned = true;
-  try { console.warn('[eyelight]', e); } catch { /* ignore */ }
+  try { console.warn('[minimarker]', e); } catch { /* ignore */ }
 }
-// NF4: every handler is wrapped so a bug in eyelight never breaks the page.
+// NF4: every handler is wrapped so a bug in minimarker never breaks the page.
 const guard = (fn) => function guarded(...a) {
   try { return fn.apply(this, a); } catch (e) { warn(e); return undefined; }
 };
@@ -111,7 +111,7 @@ export function create(userCfg = {}) {
   const coarse = mq('(hover: none) and (pointer: coarse)');
 
   // ---------- DOM ----------
-  const host = document.createElement('eyelight-ui');
+  const host = document.createElement('minimarker-ui');
   host.setAttribute('data-theme', cfg.theme);
   host.setAttribute('data-position', cfg.position);
   host.setAttribute('data-caret', block ? 'block' : 'bar');
@@ -342,19 +342,19 @@ export function create(userCfg = {}) {
     if (!ranges.length) { clearHighlights(); return; }
     const all = new Highlight();
     for (const r of ranges) all.add(r);
-    CSS.highlights.set('eyelight', all);
+    CSS.highlights.set('minimarker', all);
     const cur = ranges[current];
     if (cur) {
       const h = new Highlight(cur);
       h.priority = 1;
-      CSS.highlights.set('eyelight-current', h);
-    } else CSS.highlights.delete('eyelight-current');
+      CSS.highlights.set('minimarker-current', h);
+    } else CSS.highlights.delete('minimarker-current');
   }
 
   function clearHighlights() {
     if (!hasHighlights()) return;
-    CSS.highlights.delete('eyelight');
-    CSS.highlights.delete('eyelight-current');
+    CSS.highlights.delete('minimarker');
+    CSS.highlights.delete('minimarker-current');
   }
 
   // ---------- marker pen overlay (F2.6) ----------
@@ -720,14 +720,14 @@ export function create(userCfg = {}) {
   const onViewport = guard(() => {
     const vv = window.visualViewport;
     const off = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-    host.style.setProperty('--eyelight-kb', `${Math.round(off)}px`);
+    host.style.setProperty('--minimarker-kb', `${Math.round(off)}px`);
   });
   function trackViewport(on) {
     const vv = window.visualViewport;
     if (!vv) return;
     vv[on ? 'addEventListener' : 'removeEventListener']('resize', onViewport);
     vv[on ? 'addEventListener' : 'removeEventListener']('scroll', onViewport);
-    if (on) onViewport(); else host.style.removeProperty('--eyelight-kb');
+    if (on) onViewport(); else host.style.removeProperty('--minimarker-kb');
   }
 
   // ---------- keyboard ----------
@@ -884,10 +884,10 @@ export function create(userCfg = {}) {
   const onMq = guard(() => { renderHint(); renderHelp(); });
   coarse.addEventListener && coarse.addEventListener('change', onMq);
 
-  let style = document.querySelector('style[data-eyelight]');
+  let style = document.querySelector('style[data-minimarker]');
   if (!style) {
     style = document.createElement('style');
-    style.setAttribute('data-eyelight', '');
+    style.setAttribute('data-minimarker', '');
     style.textContent = marker ? MARKER_HIGHLIGHT_CSS : HIGHLIGHT_CSS;
     (document.head || document.documentElement).prepend(style);
   }
@@ -925,7 +925,7 @@ export function create(userCfg = {}) {
       coarse.removeEventListener && coarse.removeEventListener('change', onMq);
       host.remove();
       style.remove();
-      if (window.Eyelight === api) window.Eyelight = { init, version: VERSION };
+      if (window.Minimarker === api) window.Minimarker = { init, version: VERSION };
     }),
   };
   return api;
@@ -935,13 +935,13 @@ export function create(userCfg = {}) {
 export function init(cfg) {
   try {
     if (typeof window === 'undefined' || !document.body || !document.body.attachShadow) return null;
-    const old = window.Eyelight;
+    const old = window.Minimarker;
     if (old && old.element) {
       if (old.element.isConnected) return old;
       old.destroy(); // stale instance from a replaced <body>
     }
     const api = create(cfg || {});
-    window.Eyelight = api;
+    window.Minimarker = api;
     return api;
   } catch (e) {
     warn(e);

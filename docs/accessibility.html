@@ -3,41 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Accessibility - Eyelight</title>
-<meta name="description" content="How Eyelight meets WCAG 2.2 AA, including character key shortcuts, screen readers, input methods and focus.">
+<title>Accessibility - Minimarker</title>
+<meta name="description" content="How Minimarker meets WCAG 2.2 AA, including character key shortcuts, screen readers, input methods and focus.">
 <meta name="keywords" content="wcag, a11y, screen reader, keyboard, reduced motion, character key shortcuts, 2.1.4">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
 <header class="top"><div class="in">
-  <a class="brand" href="/eyelight/">eye<span>light</span></a>
+  <a class="brand" href="/minimarker/">mini<span>marker</span></a>
   <nav aria-label="Main">
-    <a href="/eyelight/">Overview</a>
-    <a href="/eyelight/configuration.html">Configuration</a>
-    <a href="/eyelight/search-data.html">Search data</a>
-    <a href="/eyelight/accessibility.html" aria-current="page">Accessibility</a>
-    <a href="/eyelight/demo/">Demo site</a>
-    <a href="https://github.com/davesant/eyelight">GitHub</a>
+    <a href="/minimarker/">Overview</a>
+    <a href="/minimarker/configuration.html">Configuration</a>
+    <a href="/minimarker/search-data.html">Search data</a>
+    <a href="/minimarker/accessibility.html" aria-current="page">Accessibility</a>
+    <a href="/minimarker/demo/">Demo site</a>
+    <a href="https://github.com/davesant/minimarker">GitHub</a>
   </nav>
 </div></header>
 
 <main id="content">
 <h1>Accessibility</h1>
-<p class="lead">Eyelight is designed to meet WCAG 2.2 level AA, and to stay out of the way of assistive technology and of the host site.</p>
+<p class="lead">Minimarker is designed to meet WCAG 2.2 level AA, and to stay out of the way of assistive technology and of the host site.</p>
 
 <h2 id="shortcuts">Turning type-to-search off (WCAG 2.1.4)</h2>
 <p>Type-anywhere is a single-character keyboard shortcut, so users must be able to turn it off. The open search bar has a <strong>Type-to-search: on/off</strong> button, and the choice is remembered in the browser. With capture off, the idle hint becomes a plain "Search" button. Sites can also turn capture off for everyone with <code>data-capture="false"</code>.</p>
 
 <h2 id="criteria">How each area is handled</h2>
 <div class="tw"><table>
-<thead><tr><th scope="col">Area</th><th scope="col">What Eyelight does</th></tr></thead>
+<thead><tr><th scope="col">Area</th><th scope="col">What Minimarker does</th></tr></thead>
 <tbody>
 <tr><td>Screen readers</td><td>The search box is an ARIA combobox with a listbox of suggestions. Match and suggestion counts are announced through a polite live region. In browse mode, screen readers handle keys themselves, so they never reach the page. Highlights don't change the page's DOM (marker strokes are drawn in the component's own hidden overlay), so reading order and the accessibility tree are unchanged.</td></tr>
 <tr><td>Browser find-in-page</td><td>Shortcuts that use Ctrl or Cmd are never captured. <kbd>/</kbd> and <kbd>'</kbd> are never taken from the page, so Firefox's Quick Find still works.</td></tr>
 <tr><td>Input methods (IME)</td><td>Composition keys are ignored. Once the box is open, typing goes into a real text input, so IME, dead keys, paste and undo all work normally.</td></tr>
 <tr><td>Host keyboard shortcuts</td><td>Keys the site has already handled with <code>preventDefault()</code> are ignored. Sites can also list keys in <code>ignoreKeys</code>. Keys typed in the search box don't reach the site's own shortcut handlers.</td></tr>
-<tr><td>Form fields and widgets</td><td>Nothing is captured in inputs, text areas, selects, editable content, interactive ARIA widgets (menus, grids, listboxes, sliders and so on), modal dialogs, or areas marked <code>data-eyelight-nocapture</code>.</td></tr>
+<tr><td>Form fields and widgets</td><td>Nothing is captured in inputs, text areas, selects, editable content, interactive ARIA widgets (menus, grids, listboxes, sliders and so on), modal dialogs, or areas marked <code>data-minimarker-nocapture</code>.</td></tr>
 <tr><td>Focus (2.1.2, 2.4.3, 2.4.7)</td><td>Focus is never trapped. Tab only moves between matches when you're in in-page mode and there are matches, and the box shows how to leave (<kbd>Esc</kbd>). Closing returns focus to where it was. All controls have visible focus styles.</td></tr>
 <tr><td>Focus not obscured (2.4.11)</td><td>If the idle hint would cover the focused element, it fades out. When the search is open, focused page elements are scrolled clear of the bar.</td></tr>
 <tr><td>Contrast (1.4.3, 1.4.11)</td><td>The default light and dark themes meet 4.5:1 for text and 3:1 for borders and focus rings. Marker strokes are blended onto the page so text keeps at least 4.5:1 against them on typical light and dark pages. This is checked in the test suite. In Windows high contrast mode, system colours and the browser's own text cursor are used instead of the marker and block cursor.</td></tr>
@@ -49,10 +49,10 @@
 </tbody></table></div>
 
 <h2 id="testing">Testing</h2>
-<p>An automated end-to-end suite covers every requirement in the specification in desktop and touch profiles. It runs in Chromium locally, and the continuous integration setup adds Firefox and WebKit. Manual testing with NVDA, JAWS, VoiceOver and TalkBack is planned before version 1.0. Please <a href="https://github.com/davesant/eyelight/issues">report any barrier you find</a>.</p>
+<p>An automated end-to-end suite covers every requirement in the specification in desktop and touch profiles. It runs in Chromium locally, and the continuous integration setup adds Firefox and WebKit. Manual testing with NVDA, JAWS, VoiceOver and TalkBack is planned before version 1.0. Please <a href="https://github.com/davesant/minimarker/issues">report any barrier you find</a>.</p>
 </main>
 
-<footer class="bot"><div class="in">Eyelight v0.1.0 · MIT licence · <a href="https://github.com/davesant/eyelight">github.com/davesant/eyelight</a></div></footer>
-<script src="/eyelight/eyelight.min.js" defer data-prompt="type to search" data-index="/eyelight/eyelight-index.json" data-sitemap="false"></script>
+<footer class="bot"><div class="in">Minimarker v0.1.0 · MIT licence · <a href="https://github.com/davesant/minimarker">github.com/davesant/minimarker</a></div></footer>
+<script src="/minimarker/minimarker.min.js" defer data-prompt="type to search" data-index="/minimarker/minimarker-index.json" data-sitemap="false"></script>
 </body>
 </html>

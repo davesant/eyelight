@@ -1,6 +1,6 @@
 // Tiny static file server for local development and tests.
 // Usage: node scripts/serve.js <folder> [port] [base]
-// base mounts the folder under a URL prefix, e.g. /eyelight/ like GitHub Pages.
+// base mounts the folder under a URL prefix, e.g. /minimarker/ like GitHub Pages.
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { join, normalize, extname, resolve } from 'node:path';

@@ -6,12 +6,12 @@ export async function load(page, url = HOME) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e));
   await page.goto(url);
-  await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
+  await page.waitForFunction(() => window.Minimarker && window.Minimarker.element);
   return errors;
 }
 
 export const ui = (page) => {
-  const host = page.locator('eyelight-ui');
+  const host = page.locator('minimarker-ui');
   return {
     host,
     hint: host.locator('.hint'),
@@ -29,14 +29,14 @@ export const ui = (page) => {
   };
 };
 
-export const hlCount = (page) => page.evaluate(() => (CSS.highlights.get('eyelight') || { size: 0 }).size);
+export const hlCount = (page) => page.evaluate(() => (CSS.highlights.get('minimarker') || { size: 0 }).size);
 export const currentText = (page) => page.evaluate(() => {
-  const h = CSS.highlights.get('eyelight-current');
+  const h = CSS.highlights.get('minimarker-current');
   return h ? [...h][0].toString() : null;
 });
 export const focusedIsInput = (page) => page.evaluate(() => {
   const a = document.activeElement;
-  return !!(a && a.tagName === 'EYELIGHT-UI' && a.shadowRoot.activeElement && a.shadowRoot.activeElement.tagName === 'INPUT');
+  return !!(a && a.tagName === 'MINIMARKER-UI' && a.shadowRoot.activeElement && a.shadowRoot.activeElement.tagName === 'INPUT');
 });
 
 export async function typeOnPage(page, text) {
@@ -50,16 +50,16 @@ export async function expectClosed(page) {
   await expect(ui(page).panel).toBeHidden();
 }
 
-/** Restart Eyelight on the fixture page with extra config (e.g. the non-default options). */
+/** Restart Minimarker on the fixture page with extra config (e.g. the non-default options). */
 export async function reinit(page, cfg) {
   await page.evaluate((c) => {
-    window.Eyelight.destroy();
-    window.Eyelight.init({ prompt: 'search', index: '/test/fixtures/site/eyelight-index.json', sitemap: false, ignoreKeys: 'k', ...c });
+    window.Minimarker.destroy();
+    window.Minimarker.init({ prompt: 'search', index: '/test/fixtures/site/minimarker-index.json', sitemap: false, ignoreKeys: 'k', ...c });
   }, cfg);
 }
 
 /** Marker strokes currently drawn in the overlay. */
 export const strokes = (page) => page.evaluate(() => {
-  const r = document.querySelector('eyelight-ui').shadowRoot;
+  const r = document.querySelector('minimarker-ui').shadowRoot;
   return [...r.querySelectorAll('.marks rect')].map((e) => ({ cur: e.getAttribute('class') === 'cur', box: e.getBoundingClientRect().toJSON() }));
 });

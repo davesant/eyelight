@@ -2,7 +2,7 @@
 
 Status as of v0.1.0 (28 September 2026). "Test" names are in `test/e2e/*.spec.js` (Playwright) and `test/unit/core.test.js` (`node --test`).
 
-Local runs: 9 unit and 75 e2e tests pass in Chromium desktop and a Pixel 7 touch profile. CI (`.github/workflows/ci.yml`) runs the same suite in Chromium, Firefox, WebKit and an iPhone profile: 221 passed on 28 September 2026. The first CI runs found a Firefox tab-order assumption and a timing-based WebKit check in the tests, which were rewritten to be deterministic, and one real WebKit bug (a stale reduced-motion media query), which was fixed in `src/eyelight.js`. After the rename from Minisearch to Eyelight, the full local suite was re-run and passes.
+Local runs: 9 unit and 75 e2e tests pass in Chromium desktop and a Pixel 7 touch profile. CI (`.github/workflows/ci.yml`) runs the same suite in Chromium, Firefox, WebKit and an iPhone profile: 221 passed on 28 September 2026. The first CI runs found a Firefox tab-order assumption and a timing-based WebKit check in the tests, which were rewritten to be deterministic, and one real WebKit bug (a stale reduced-motion media query), which was fixed in `src/minimarker.js`. After the renames from Minisearch to Eyelight and then to Minimarker, the full local suite was re-run and passes.
 
 Update, 28 September 2026 (new defaults: bottom-left bar, in-page search first, block cursor, marker highlight): 10 unit and 97 e2e tests pass locally in Chromium desktop and the Pixel 7 touch profile (also 3 repeated runs with no flakes). Firefox and WebKit run in CI. A separate review pass of the change found 16 issues. All were fixed, most with a regression test: dark or modern-syntax (oklch, lab) page backgrounds were misjudged, strokes went stale after layout-only changes, the overlay scrolled on the main thread (it now sits in page coordinates and scrolls natively), clipping used the border box, the block cursor ignored `::part(input)` fonts and didn't track drag selections, an early "0 pages" announcement, Shift+arrows and Shift+Enter handling, and an unguarded handler. Two remain as known limitations in TASKS.md: strokes are drawn over sticky or fixed page elements that cover a match, and strokes inside fixed or sticky content catch up only when scrolling stops.
 
@@ -38,7 +38,7 @@ Key: **Met** = implemented and covered by an automated test. **Met (manual)** = 
 | F4.2 | Count and current match shown | Met | `F4.2/F4.3 count and all navigation keys…` |
 | F4.3 | Up/Down, Left/Right, Tab/Shift+Tab, Shift+Enter (and Enter with `suggest`); wraps | Met | `F4.2/F4.3 …` (8 key presses, wrap-around both ways), `F4.3 Shift+Left/Right select text…`, `startMode: suggest › F4.3 Enter and Shift+Enter…` |
 | F4.4 | Scrolls match into view above the bar, including nested scrollers; instant with reduced motion | Met | `F4.4/F4.5 the page scrolls…`, `F4.4 matches inside scroll containers…`, `F4.4 reduced motion scrolls instantly` |
-| F4.5 | Current match looks different | Met | separate `eyelight-current` highlight, checked in `F4.4/F4.5` |
+| F4.5 | Current match looks different | Met | separate `minimarker-current` highlight, checked in `F4.4/F4.5` |
 | F4.6 | Typing updates results in either mode | Met | `F4.6 typing keeps updating results in in-page mode` |
 | F4.7 | Starts at first match in view, as you type by default | Met | `F4.7 typing starts from the first match in view` |
 | F5.1 | Esc in in-page mode (default) or double Esc, Esc on empty box, close button | Met | `F5.1 Escape in in-page mode closes`, `F5.1 from site pages, a quick double Escape closes`, `startMode: suggest › F5.1 a quick double Escape closes`, `F5.1 Escape on an empty box closes; so does the close button` |
@@ -59,8 +59,8 @@ Key: **Met** = implemented and covered by an automated test. **Met (manual)** = 
 | NF6.5 | Combobox/listbox/live region | Met | `NF6.5 combobox, listbox and live region semantics`, `F3.4` (`aria-activedescendant`) |
 | NF7 | Reduced motion, colour scheme, remembered capture choice | Met | `F1.3`, `F4.4 reduced motion…`, `NF6.2/NF7…`, `prefers-color-scheme` in styles |
 | NF8 | Current major browsers | Met | Full suite runs in CI in Chromium, Firefox and WebKit, plus an iPhone profile, including the marker pixel check. There's a graceful fallback without the Highlight API. |
-| D1 | Component published | Partly | `dist/eyelight.min.js` is committed and servable through jsDelivr from GitHub. **npm publish and the v0.1.0 tag are pending with Dave** (TASKS.md). |
-| D2 | Docs with live demo | Met | Live at https://davesant.github.io/eyelight/ (9 pages), covered by `D2 …` tests. |
+| D1 | Component published | Partly | `dist/minimarker.min.js` is committed and servable through jsDelivr from GitHub. **npm publish and the v0.1.0 tag are pending with Dave** (TASKS.md). |
+| D2 | Docs with live demo | Met | Live at https://davesant.github.io/minimarker/ (9 pages), covered by `D2 …` tests. |
 
 ## Independent review
 

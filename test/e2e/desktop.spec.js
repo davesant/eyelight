@@ -192,13 +192,13 @@ test.describe('F3 predictive search', () => {
     const reqs = [];
     page.on('request', (r) => reqs.push(r.url()));
     await page.reload();
-    await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
+    await page.waitForFunction(() => window.Minimarker && window.Minimarker.element);
     await page.keyboard.type('tu');
     await page.waitForTimeout(300);
-    expect(reqs.filter((u) => u.includes('eyelight-index'))).toEqual([]);
+    expect(reqs.filter((u) => u.includes('minimarker-index'))).toEqual([]);
     await expect(ui(page).list).toBeHidden(); // F3.0 no site pages while typing
     await page.keyboard.press('Enter');
-    await expect.poll(() => reqs.filter((u) => u.includes('eyelight-index')).length).toBe(1);
+    await expect.poll(() => reqs.filter((u) => u.includes('minimarker-index')).length).toBe(1);
   });
 
   test('F3.0/F3.1/F3.2 Enter shows site pages, which narrow as you type', async ({ page }) => {
@@ -328,8 +328,8 @@ test.describe('F4 in-page navigation', () => {
     await expect(u.count).toHaveText('1 of 1');
     expect(await currentText(page)).toBe('farword');
     await expect.poll(async () => page.evaluate(() => {
-      const r = [...CSS.highlights.get('eyelight-current')][0].getBoundingClientRect();
-      const bar = document.querySelector('eyelight-ui').shadowRoot.querySelector('.panel').getBoundingClientRect();
+      const r = [...CSS.highlights.get('minimarker-current')][0].getBoundingClientRect();
+      const bar = document.querySelector('minimarker-ui').shadowRoot.querySelector('.panel').getBoundingClientRect();
       return r.top >= 0 && r.bottom <= bar.top;
     })).toBe(true);
   });
@@ -339,14 +339,14 @@ test.describe('F4 in-page navigation', () => {
     await page.keyboard.type('deepword');
     await expect.poll(() => page.evaluate(() => {
       const s = document.getElementById('scroller');
-      const r = [...CSS.highlights.get('eyelight-current')][0].getBoundingClientRect();
+      const r = [...CSS.highlights.get('minimarker-current')][0].getBoundingClientRect();
       const sr = s.getBoundingClientRect();
       return s.scrollTop > 0 && r.top >= sr.top && r.bottom <= sr.bottom && r.top >= 0 && r.bottom <= innerHeight;
     })).toBe(true);
   });
 
   test('F4.4 reduced motion scrolls instantly', async ({ page }) => {
-    // Record the behaviour Eyelight asks for, rather than timing the scroll (which is flaky).
+    // Record the behaviour Minimarker asks for, rather than timing the scroll (which is flaky).
     await page.evaluate(() => {
       window.scrollCalls = [];
       const orig = window.scrollBy.bind(window);
@@ -428,7 +428,7 @@ test.describe('F5 exit', () => {
     await page.keyboard.press('Escape');
     await expectClosed(page);
     expect(await hlCount(page)).toBe(0);
-    expect(await page.evaluate(() => CSS.highlights.has('eyelight-current'))).toBe(false);
+    expect(await page.evaluate(() => CSS.highlights.has('minimarker-current'))).toBe(false);
     expect(await strokes(page)).toEqual([]);
     expect(await page.evaluate(() => document.activeElement.id)).toBe('btn');
     await expect(u.input).toHaveValue('');
@@ -464,7 +464,7 @@ test.describe('NF accessibility and robustness', () => {
     // Remembered across reloads (don't clear storage this time)
     await page.goto('about:blank');
     await page.goto(HOME);
-    await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
+    await page.waitForFunction(() => window.Minimarker && window.Minimarker.element);
     await page.keyboard.type('ab');
     await expectClosed(page);
     // Clicking the hint still opens search; turning capture back on works
@@ -525,7 +525,7 @@ test.describe('NF accessibility and robustness', () => {
 
   test('NF6.1 label in name: the hint accessible name contains its visible prompt', async ({ page }) => {
     await load(page, `${HOME}inline.html`); // no prompt
-    await page.evaluate(() => { window.Eyelight.destroy(); window.Eyelight.init({ prompt: 'type to search', index: false, sitemap: false }); });
+    await page.evaluate(() => { window.Minimarker.destroy(); window.Minimarker.init({ prompt: 'type to search', index: false, sitemap: false }); });
     await expect(ui(page).hint).toHaveAttribute('aria-label', /^type to search - /);
   });
 
@@ -547,14 +547,14 @@ test.describe('NF accessibility and robustness', () => {
   }
 
   test('NF4 an invalid selector in the config is ignored', async ({ page }) => {
-    await page.evaluate(() => { window.Eyelight.destroy(); window.Eyelight.init({ exclude: '[[bad', noCapture: '::nope(', index: false, sitemap: false }); });
+    await page.evaluate(() => { window.Minimarker.destroy(); window.Minimarker.init({ exclude: '[[bad', noCapture: '::nope(', index: false, sitemap: false }); });
     await page.keyboard.type('harmonica');
     await expect(ui(page).count).toHaveText('1 of 4');
   });
 
   test('NF4 re-attaches if the host page replaces <body>', async ({ page }) => {
     await page.evaluate(() => { const b = document.createElement('body'); b.innerHTML = '<main><p>fresh harmonica page</p></main>'; document.body.replaceWith(b); });
-    await expect(page.locator('eyelight-ui')).toHaveCount(1);
+    await expect(page.locator('minimarker-ui')).toHaveCount(1);
     await page.keyboard.type('harmonica');
     await expect(ui(page).count).toHaveText('1 of 1');
   });
@@ -570,7 +570,7 @@ test.describe('NF accessibility and robustness', () => {
 
   test('NF4 loading the script twice creates one component', async ({ page }) => {
     await load(page, `${HOME}double.html`);
-    expect(await page.locator('eyelight-ui').count()).toBe(1);
+    expect(await page.locator('minimarker-ui').count()).toBe(1);
     await page.keyboard.type('harmonica');
     await expect(ui(page).count).toHaveText('1 of 1');
   });
@@ -586,7 +586,7 @@ test.describe('NF accessibility and robustness', () => {
 
   test('NF5 no layout shift: the component sits outside the page flow', async ({ page }) => {
     const st = await page.evaluate(() => {
-      const h = document.querySelector('eyelight-ui');
+      const h = document.querySelector('minimarker-ui');
       return [getComputedStyle(h).display, ...['.wrap', '.marks'].map((s) => getComputedStyle(h.shadowRoot.querySelector(s)).position)];
     });
     expect(st).toEqual(['contents', 'fixed', 'absolute']);
@@ -599,11 +599,11 @@ test.describe('NF accessibility and robustness', () => {
 
   test('NF3 JS API: open with a query, setTheme, close', async ({ page }) => {
     const u = ui(page);
-    await page.evaluate(() => window.Eyelight.open('harmonica'));
+    await page.evaluate(() => window.Minimarker.open('harmonica'));
     await expect(u.count).toHaveText('1 of 4');
-    await page.evaluate(() => window.Eyelight.setTheme('dark'));
+    await page.evaluate(() => window.Minimarker.setTheme('dark'));
     await expect(u.host).toHaveAttribute('data-theme', 'dark');
-    await page.evaluate(() => window.Eyelight.close());
+    await page.evaluate(() => window.Minimarker.close());
     await expectClosed(page);
   });
 });
@@ -662,10 +662,10 @@ test.describe('Layout, cursor and marker defaults', () => {
   });
 
   test('F1.10 the block cursor follows ::part(input) font styling', async ({ page }) => {
-    await page.addStyleTag({ content: 'eyelight-ui::part(input){font-family:monospace;font-size:24px;letter-spacing:4px}' });
+    await page.addStyleTag({ content: 'minimarker-ui::part(input){font-family:monospace;font-size:24px;letter-spacing:4px}' });
     await page.keyboard.type('harmonica');
     const gap = () => page.evaluate(() => {
-      const r = document.querySelector('eyelight-ui').shadowRoot;
+      const r = document.querySelector('minimarker-ui').shadowRoot;
       const i = r.querySelector('input');
       const c = r.querySelector('.bcaret').getBoundingClientRect();
       const probe = document.createElement('span');
@@ -704,7 +704,7 @@ test.describe('Layout, cursor and marker defaults', () => {
     const s = await strokes(page);
     expect(s.filter((m) => m.cur)).toHaveLength(1);
     const st = await page.evaluate(() => {
-      const r = document.querySelector('eyelight-ui').shadowRoot;
+      const r = document.querySelector('minimarker-ui').shadowRoot;
       const rect = r.querySelector('.marks rect:not(.cur)');
       return {
         blend: getComputedStyle(r.querySelector('.marks')).mixBlendMode,
@@ -712,13 +712,13 @@ test.describe('Layout, cursor and marker defaults', () => {
         hasFilter: !!r.getElementById('el-mf'),
         fill: getComputedStyle(rect).fill,
         cur: getComputedStyle(r.querySelector('.marks rect.cur')).fill,
-        style: document.querySelector('style[data-eyelight]').textContent,
+        style: document.querySelector('style[data-minimarker]').textContent,
       };
     });
     expect(st).toMatchObject({ blend: 'multiply', filter: 'url(#el-mf)', hasFilter: true, fill: 'rgb(255, 109, 183)', cur: 'rgb(255, 164, 46)' });
     expect(st.style.trim()).toMatch(/^@media \(forced-colors:active\)\{[^{}]*(\{[^{}]*\}[^{}]*)*\}$/); // flat highlight only in forced colours
     // Each stroke covers its match: 0.25em wider at each end, about 1em tall
-    const m = await page.evaluate(() => [...CSS.highlights.get('eyelight-current')][0].getBoundingClientRect().toJSON());
+    const m = await page.evaluate(() => [...CSS.highlights.get('minimarker-current')][0].getBoundingClientRect().toJSON());
     const cur = s.find((x) => x.cur).box;
     expect(cur.left).toBeLessThan(m.left);
     expect(cur.right).toBeGreaterThan(m.right);
@@ -731,7 +731,7 @@ test.describe('Layout, cursor and marker defaults', () => {
     await page.keyboard.press('ArrowDown'); // current moves to match 2, so match 1 is a pink stroke
     await expect(ui(page).count).toHaveText('2 of 4');
     await page.waitForTimeout(100);
-    const m = await page.evaluate(() => [...CSS.highlights.get('eyelight')][0].getBoundingClientRect().toJSON());
+    const m = await page.evaluate(() => [...CSS.highlights.get('minimarker')][0].getBoundingClientRect().toJSON());
     const img = decodePng(await page.screenshot({ clip: { x: m.left - 12, y: m.top - 6, width: m.width + 24, height: m.height + 12 } }));
     let pink = 0;
     let dark = 0;
@@ -766,7 +766,7 @@ test.describe('Layout, cursor and marker defaults', () => {
     await page.evaluate(() => { document.body.style.background = '#111'; document.body.style.color = '#eee'; });
     await page.keyboard.type('harmonica');
     await expect(ui(page).host).toHaveAttribute('data-page', 'dark');
-    const blend = await page.evaluate(() => getComputedStyle(document.querySelector('eyelight-ui').shadowRoot.querySelector('.marks')).mixBlendMode);
+    const blend = await page.evaluate(() => getComputedStyle(document.querySelector('minimarker-ui').shadowRoot.querySelector('.marks')).mixBlendMode);
     expect(blend).toBe('screen');
   });
 
@@ -793,7 +793,7 @@ test.describe('Layout, cursor and marker defaults', () => {
     await page.keyboard.type('harmonica');
     await expect.poll(() => hlCount(page)).toBe(4);
     expect(await strokes(page)).toEqual([]);
-    expect(await page.evaluate(() => document.querySelector('style[data-eyelight]').textContent)).toMatch(/::highlight\(eyelight\)\{background-color/);
+    expect(await page.evaluate(() => document.querySelector('style[data-minimarker]').textContent)).toMatch(/::highlight\(minimarker\)\{background-color/);
   });
 });
 

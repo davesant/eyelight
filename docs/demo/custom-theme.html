@@ -4,59 +4,59 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Custom theme demo</title>
-<meta name="description" content="An example of restyling Eyelight with CSS custom properties, parts and highlight colours.">
+<meta name="description" content="An example of restyling Minimarker with CSS custom properties, parts and highlight colours.">
 <meta name="keywords" content="theme, custom style, css variables, colours">
 <link rel="stylesheet" href="../site.css">
 <style>
-  /* Restyle Eyelight with custom properties... */
-  eyelight-ui {
-    --eyelight-bg:#fffaf0; --eyelight-fg:#2b2118; --eyelight-muted:#6b5a48; --eyelight-border:#a08466; --eyelight-subtle:#eadccb;
-    --eyelight-accent:#a4410e; --eyelight-accent-fg:#fff; --eyelight-active:#f6e7d3; --eyelight-mark:#ffd98a; --eyelight-mark-fg:#2b2118;
-    --eyelight-radius:2px; --eyelight-font:Georgia,"Times New Roman",serif; --eyelight-width:34rem; --eyelight-shadow:6px 6px 0 #2b2118;
+  /* Restyle Minimarker with custom properties... */
+  minimarker-ui {
+    --minimarker-bg:#fffaf0; --minimarker-fg:#2b2118; --minimarker-muted:#6b5a48; --minimarker-border:#a08466; --minimarker-subtle:#eadccb;
+    --minimarker-accent:#a4410e; --minimarker-accent-fg:#fff; --minimarker-active:#f6e7d3; --minimarker-mark:#ffd98a; --minimarker-mark-fg:#2b2118;
+    --minimarker-radius:2px; --minimarker-font:Georgia,"Times New Roman",serif; --minimarker-width:34rem; --minimarker-shadow:6px 6px 0 #2b2118;
   }
   /* ...parts... */
-  eyelight-ui::part(hint) { border-width: 2px; font-style: italic; }
-  eyelight-ui::part(input) { font-size: 1.125rem; }
+  minimarker-ui::part(hint) { border-width: 2px; font-style: italic; }
+  minimarker-ui::part(input) { font-size: 1.125rem; }
   /* ...and highlight colours on the page. */
-  ::highlight(eyelight) { background-color: #c7f0d8; color: #000; }
-  ::highlight(eyelight-current) { background-color: #1a7f4b; color: #fff; }
+  ::highlight(minimarker) { background-color: #c7f0d8; color: #000; }
+  ::highlight(minimarker-current) { background-color: #1a7f4b; color: #fff; }
 </style>
 </head>
 <body>
 <a class="skip" href="#content">Skip to content</a>
 <header class="top"><div class="in">
-  <a class="brand" href="/eyelight/demo/">Pocket Harp <span>Club</span></a>
+  <a class="brand" href="/minimarker/demo/">Pocket Harp <span>Club</span></a>
   <nav aria-label="Demo site">
-    <a href="/eyelight/demo/">Home</a>
-    <a href="/eyelight/demo/getting-started.html">Getting started</a>
-    <a href="/eyelight/demo/bending.html">Bending notes</a>
-    <a href="/eyelight/demo/tuning.html">Tuning and care</a>
-    <a href="/eyelight/demo/custom-theme.html" aria-current="page">Custom theme</a>
-    <a href="/eyelight/">Back to the docs</a>
+    <a href="/minimarker/demo/">Home</a>
+    <a href="/minimarker/demo/getting-started.html">Getting started</a>
+    <a href="/minimarker/demo/bending.html">Bending notes</a>
+    <a href="/minimarker/demo/tuning.html">Tuning and care</a>
+    <a href="/minimarker/demo/custom-theme.html" aria-current="page">Custom theme</a>
+    <a href="/minimarker/">Back to the docs</a>
   </nav>
 </div></header>
 <main id="content">
-<p class="try" data-eyelight-ignore>This is a made-up demo site for trying Eyelight. Type anywhere, for example <kbd>reed</kbd>, <kbd>bend</kbd> or <kbd>tuning</kbd>.</p>
+<p class="try" data-minimarker-ignore>This is a made-up demo site for trying Minimarker. Type anywhere, for example <kbd>reed</kbd>, <kbd>bend</kbd> or <kbd>tuning</kbd>.</p>
 
 <h1>Custom theme</h1>
-<p class="lead">This page restyles Eyelight to match a warm, bookish site, and switches every default: the bar is centred, suggestions show as you type, the cursor is a thin line and matches get flat highlight colours. The prompt says "find". Type <kbd>reed</kbd> or <kbd>bend</kbd> to see it.</p>
+<p class="lead">This page restyles Minimarker to match a warm, bookish site, and switches every default: the bar is centred, suggestions show as you type, the cursor is a thin line and matches get flat highlight colours. The prompt says "find". Type <kbd>reed</kbd> or <kbd>bend</kbd> to see it.</p>
 <h2 id="how">How it's done</h2>
 <p>The component lives in a shadow root, so none of the site's styles can break it. Instead, it exposes CSS custom properties, parts and highlight names. This page uses all three:</p>
-<pre><code>eyelight-ui {
-  --eyelight-bg: #fffaf0;  --eyelight-fg: #2b2118;  --eyelight-accent: #a4410e;
-  --eyelight-radius: 2px;  --eyelight-font: Georgia, serif;
-  --eyelight-shadow: 6px 6px 0 #2b2118;
+<pre><code>minimarker-ui {
+  --minimarker-bg: #fffaf0;  --minimarker-fg: #2b2118;  --minimarker-accent: #a4410e;
+  --minimarker-radius: 2px;  --minimarker-font: Georgia, serif;
+  --minimarker-shadow: 6px 6px 0 #2b2118;
 }
-eyelight-ui::part(hint) { border-width: 2px; font-style: italic; }
-::highlight(eyelight)         { background-color: #c7f0d8; color: #000; }
-::highlight(eyelight-current) { background-color: #1a7f4b; color: #fff; }</code></pre>
+minimarker-ui::part(hint) { border-width: 2px; font-style: italic; }
+::highlight(minimarker)         { background-color: #c7f0d8; color: #000; }
+::highlight(minimarker-current) { background-color: #1a7f4b; color: #fff; }</code></pre>
 <p>The script tag sets the prompt and switches the defaults:</p>
-<pre><code>&lt;script src="eyelight.min.js" defer data-prompt="find" data-position="center"
+<pre><code>&lt;script src="minimarker.min.js" defer data-prompt="find" data-position="center"
         data-start-mode="suggest" data-caret="bar" data-highlight="solid"&gt;&lt;/script&gt;</code></pre>
 <h2 id="reeds">Some text to search</h2>
 <p>Every reed in a harmonica is a thin brass tongue riveted over a slot. When air flows, the reed swings through the slot and back, and that vibration is the note you hear. Bend a note and you change how the blow reed and draw reed share the airflow.</p>
 </main>
-<footer class="bot"><div class="in">A demo site for <a href="/eyelight/">Eyelight</a>. The club is fictional.</div></footer>
-<script src="/eyelight/eyelight.min.js" defer data-prompt="find" data-position="center" data-start-mode="suggest" data-caret="bar" data-highlight="solid" data-index="/eyelight/eyelight-index.json" data-sitemap="false" data-theme="light"></script>
+<footer class="bot"><div class="in">A demo site for <a href="/minimarker/">Minimarker</a>. The club is fictional.</div></footer>
+<script src="/minimarker/minimarker.min.js" defer data-prompt="find" data-position="center" data-start-mode="suggest" data-caret="bar" data-highlight="solid" data-index="/minimarker/minimarker-index.json" data-sitemap="false" data-theme="light"></script>
 </body>
 </html>
