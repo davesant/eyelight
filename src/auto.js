@@ -1,9 +1,9 @@
 // Script-tag entry point. Reads config from the <script> tag's data-*
-// attributes and window.eyelightConfig, then initialises (NF1).
+// attributes and window.minimarkerConfig, then initialises (NF1).
 //
-//   <script src="eyelight.min.js" defer data-prompt="search"></script>
+//   <script src="minimarker.min.js" defer data-prompt="search"></script>
 
-import { init, VERSION } from './eyelight.js';
+import { init, VERSION } from './minimarker.js';
 
 const script = document.currentScript;
 
@@ -38,17 +38,17 @@ function fromDataset(ds) {
 function start() {
   try {
     const ds = (script && script.dataset) || {};
-    if (ds.manual !== undefined) return; // host will call Eyelight.init() itself
-    const cfg = { ...(window.eyelightConfig || {}), ...fromDataset(ds) };
+    if (ds.manual !== undefined) return; // host will call Minimarker.init() itself
+    const cfg = { ...(window.minimarkerConfig || {}), ...fromDataset(ds) };
     init(cfg);
   } catch (e) {
-    try { console.warn('[eyelight]', e); } catch { /* ignore */ }
+    try { console.warn('[minimarker]', e); } catch { /* ignore */ }
   }
 }
 
 try {
-  // Placeholder so `Eyelight.init()` works in manual mode; replaced by the live API on init.
-  if (!window.Eyelight) window.Eyelight = { init, version: VERSION };
+  // Placeholder so `Minimarker.init()` works in manual mode; replaced by the live API on init.
+  if (!window.Minimarker) window.Minimarker = { init, version: VERSION };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else start();
 } catch { /* never break the host page */ }
