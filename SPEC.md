@@ -1,4 +1,4 @@
-# Minisearch specification
+# Eyelight specification
 
 Status: v0.1 working spec, 28 September 2026. It is based on the original proposal (kept in full at the end of this file), with the open "TBC" questions answered.
 
@@ -6,21 +6,21 @@ Each requirement has an ID (for example `F1.3`). Tests and the verification tabl
 
 ## Purpose
 
-Minisearch is an open source search component that any website can drop in. [miniharp.dev](https://miniharp.dev) will be the first site to use it.
+Eyelight is an open source search component that any website can drop in. [miniharp.dev](https://miniharp.dev) will be the first site to use it.
 
 ## Decisions made on the proposal's open questions
 
 | Question | Decision |
 |---|---|
-| Where suggestion data comes from | A **build-time index**. The `minisearch-index` CLI scans a folder of built HTML and writes `minisearch-index.json` with page titles, descriptions, keywords and headings with anchors. If the index is missing, the component falls back to **`sitemap.xml`**, taking titles from URLs. Sites can also **pass their own list of pages** in the config. All three can be combined. |
+| Where suggestion data comes from | A **build-time index**. The `eyelight-index` CLI scans a folder of built HTML and writes `eyelight-index.json` with page titles, descriptions, keywords and headings with anchors. If the index is missing, the component falls back to **`sitemap.xml`**, taking titles from URLs. Sites can also **pass their own list of pages** in the config. All three can be combined. |
 | How it works on static sites | The index is a static JSON file served next to the pages, so no server is needed. |
-| Drop-in setup | One `<script defer>` tag. Config is read from `data-*` attributes, or from `window.minisearchConfig`. |
+| Drop-in setup | One `<script defer>` tag. Config is read from `data-*` attributes, or from `window.eyelightConfig`. |
 | Escape: "toggle" vs "twice closes" | A single Escape toggles between site suggestions and in-page navigation. A second Escape within 500 ms closes the search. Escape on an empty box closes it straight away. There is also a visible close button. |
 | Tab vs "never traps focus" | Tab and Shift+Tab only move between matches when the box is in in-page mode and there is at least one match. The box always shows how to leave (Escape). In suggestion mode, Tab moves focus normally. |
 | Mobile | On touch devices with no hover or fine pointer, a small floating search button replaces the idle cursor. Tapping it opens the same bar with a real input, so the on-screen keyboard appears. There are large previous/next buttons and a mode toggle. |
 | Accessibility targets | All adopted. See NF6. |
 | Highlighting technique | The CSS Custom Highlight API. The page's DOM is never changed. |
-| Package name | `minisearch` on npm is taken by an unrelated library, so the package is published as `@davesant/minisearch`. It can also be served from GitHub through jsDelivr. |
+| Package name | The project was first called Minisearch. It was renamed Eyelight (28 September 2026) to avoid confusion with the unrelated, well-known [lucaong/minisearch](https://github.com/lucaong/minisearch) library, and because the name points at the highlight feature. The package is published under the author's scope as `@davesant/eyelight`. It can also be served from GitHub through jsDelivr. |
 | Docs hosting | GitHub Pages, serving the `docs/` folder on `main`. |
 
 ## Functional requirements
@@ -35,7 +35,7 @@ Minisearch is an open source search component that any website can drop in. [min
   - an `input`, `textarea`, `select` or contenteditable element
   - an element with an interactive ARIA widget role (textbox, searchbox, combobox, listbox, menu, menubar, grid, tree, treegrid, tablist, slider, spinbutton, radiogroup, application)
   - a modal `<dialog>`
-  - an area matching the host's `noCapture` selector (default `[data-minisearch-nocapture]`)
+  - an area matching the host's `noCapture` selector (default `[data-eyelight-nocapture]`)
   - a form-associated custom element, or a focused custom element whose internals are hidden in a closed shadow root
 - **F1.6** Keys pressed with Ctrl, Meta (Cmd) or Alt are never captured. AltGr is the exception, because on many European layouts it is needed to type ordinary characters.
 - **F1.7** A key is not captured if the host site's own handler has already called `preventDefault()`, or if it is in the host's `ignoreKeys` list.
@@ -91,7 +91,7 @@ Minisearch is an open source search component that any website can drop in. [min
 - **NF4 Doesn't break the site.**
   - If the script fails to load or throws, the page works normally.
   - Errors are caught and logged once.
-  - The component only adds one element (`<minisearch-ui>`) at the end of `<body>` and a `::highlight` stylesheet.
+  - The component only adds one element (`<eyelight-ui>`) at the end of `<body>` and a `::highlight` stylesheet.
   - Loading two copies of the script is harmless.
   - Invalid selectors in the config are ignored with a warning.
   - If the host page replaces `<body>` (Turbo, pjax), the component re-attaches itself.
@@ -114,7 +114,7 @@ Minisearch is an open source search component that any website can drop in. [min
 
 ## Deliverables
 
-- **D1** The component: `dist/minisearch.min.js` (script tag), `dist/minisearch.esm.js` (module) and the `minisearch-index` CLI. It's published to npm as `@davesant/minisearch` and served by jsDelivr.
+- **D1** The component: `dist/eyelight.min.js` (script tag), `dist/eyelight.esm.js` (module) and the `eyelight-index` CLI. It's published to npm as `@davesant/eyelight` and served by jsDelivr.
 - **D2** Documentation with a live demo in `docs/`, served by GitHub Pages.
 
 ---

@@ -4,7 +4,7 @@ import { load, ui, hlCount, currentText, focusedIsInput, waitEscWindow, expectCl
 
 let errors;
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => { try { if (!sessionStorage.getItem('ms-test')) { localStorage.clear(); sessionStorage.setItem('ms-test', '1'); } } catch { /* */ } });
+  await page.addInitScript(() => { try { if (!sessionStorage.getItem('el-test')) { localStorage.clear(); sessionStorage.setItem('el-test', '1'); } } catch { /* */ } });
   errors = await load(page);
 });
 test.afterEach(() => { expect(errors, 'no uncaught page errors (NF4)').toEqual([]); });
@@ -30,7 +30,7 @@ test.describe('F1 type anywhere', () => {
   test('F1.3 cursor blinks for at most 5 s, and not at all with reduced motion', async ({ page }) => {
     const caret = ui(page).hint.locator('.caret');
     const anim = () => caret.evaluate((c) => { const s = getComputedStyle(c); return [s.animationName, s.animationIterationCount, s.animationDuration]; });
-    expect(await anim()).toEqual(['ms-blink', '5', '1s']);
+    expect(await anim()).toEqual(['el-blink', '5', '1s']);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect((await anim())[0]).toBe('none');
   });
@@ -191,11 +191,11 @@ test.describe('F3 predictive search', () => {
     const reqs = [];
     page.on('request', (r) => reqs.push(r.url()));
     await page.reload();
-    await page.waitForFunction(() => window.Minisearch && window.Minisearch.element);
+    await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
     await page.waitForTimeout(300);
-    expect(reqs.filter((u) => u.includes('minisearch-index'))).toEqual([]);
+    expect(reqs.filter((u) => u.includes('eyelight-index'))).toEqual([]);
     await page.keyboard.type('tu');
-    await expect.poll(() => reqs.filter((u) => u.includes('minisearch-index')).length).toBe(1);
+    await expect.poll(() => reqs.filter((u) => u.includes('eyelight-index')).length).toBe(1);
   });
 
   test('F3.1/F3.2 suggestions appear and narrow as you type', async ({ page }) => {
@@ -221,7 +221,7 @@ test.describe('F3 predictive search', () => {
     await page.keyboard.type('flatten');
     await expect(u.options.first()).toBeVisible();
     await page.keyboard.press('ArrowDown');
-    await expect(u.input).toHaveAttribute('aria-activedescendant', 'ms-o0');
+    await expect(u.input).toHaveAttribute('aria-activedescendant', 'el-o0');
     await expect(u.options.first()).toHaveAttribute('aria-selected', 'true');
     await page.keyboard.press('Enter');
     await page.waitForURL(/guide\/tuning\.html#flatten$/);
@@ -288,8 +288,8 @@ test.describe('F4 in-page navigation', () => {
     await expect(u.count).toHaveText('1 of 1');
     expect(await currentText(page)).toBe('farword');
     await expect.poll(async () => page.evaluate(() => {
-      const r = [...CSS.highlights.get('minisearch-current')][0].getBoundingClientRect();
-      const bar = document.querySelector('minisearch-ui').shadowRoot.querySelector('.panel').getBoundingClientRect();
+      const r = [...CSS.highlights.get('eyelight-current')][0].getBoundingClientRect();
+      const bar = document.querySelector('eyelight-ui').shadowRoot.querySelector('.panel').getBoundingClientRect();
       return r.top >= 0 && r.bottom <= bar.top;
     })).toBe(true);
   });
@@ -300,14 +300,14 @@ test.describe('F4 in-page navigation', () => {
     await page.keyboard.press('Escape');
     await expect.poll(() => page.evaluate(() => {
       const s = document.getElementById('scroller');
-      const r = [...CSS.highlights.get('minisearch-current')][0].getBoundingClientRect();
+      const r = [...CSS.highlights.get('eyelight-current')][0].getBoundingClientRect();
       const sr = s.getBoundingClientRect();
       return s.scrollTop > 0 && r.top >= sr.top && r.bottom <= sr.bottom && r.top >= 0 && r.bottom <= innerHeight;
     })).toBe(true);
   });
 
   test('F4.4 reduced motion scrolls instantly', async ({ page }) => {
-    // Record the behaviour Minisearch asks for, rather than timing the scroll (which is flaky).
+    // Record the behaviour Eyelight asks for, rather than timing the scroll (which is flaky).
     await page.evaluate(() => {
       window.scrollCalls = [];
       const orig = window.scrollBy.bind(window);
@@ -383,7 +383,7 @@ test.describe('F5 exit', () => {
     await page.keyboard.press('Escape');
     await expectClosed(page);
     expect(await hlCount(page)).toBe(0);
-    expect(await page.evaluate(() => CSS.highlights.has('minisearch-current'))).toBe(false);
+    expect(await page.evaluate(() => CSS.highlights.has('eyelight-current'))).toBe(false);
     expect(await page.evaluate(() => document.activeElement.id)).toBe('btn');
     await expect(u.input).toHaveValue('');
     await expect(u.hint).toBeVisible();
@@ -417,7 +417,7 @@ test.describe('NF accessibility and robustness', () => {
     // Remembered across reloads (don't clear storage this time)
     await page.goto('about:blank');
     await page.goto(HOME);
-    await page.waitForFunction(() => window.Minisearch && window.Minisearch.element);
+    await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
     await page.keyboard.type('ab');
     await expectClosed(page);
     // Clicking the hint still opens search; turning capture back on works
@@ -478,7 +478,7 @@ test.describe('NF accessibility and robustness', () => {
 
   test('NF6.1 label in name: the hint accessible name contains its visible prompt', async ({ page }) => {
     await load(page, `${HOME}inline.html`); // no prompt
-    await page.evaluate(() => { window.Minisearch.destroy(); window.Minisearch.init({ prompt: 'type to search', index: false, sitemap: false }); });
+    await page.evaluate(() => { window.Eyelight.destroy(); window.Eyelight.init({ prompt: 'type to search', index: false, sitemap: false }); });
     await expect(ui(page).hint).toHaveAttribute('aria-label', /^type to search - /);
   });
 
@@ -500,14 +500,14 @@ test.describe('NF accessibility and robustness', () => {
   }
 
   test('NF4 an invalid selector in the config is ignored', async ({ page }) => {
-    await page.evaluate(() => { window.Minisearch.destroy(); window.Minisearch.init({ exclude: '[[bad', noCapture: '::nope(', index: false, sitemap: false }); });
+    await page.evaluate(() => { window.Eyelight.destroy(); window.Eyelight.init({ exclude: '[[bad', noCapture: '::nope(', index: false, sitemap: false }); });
     await page.keyboard.type('harmonica');
     await expect(ui(page).count).toHaveText('4 on page');
   });
 
   test('NF4 re-attaches if the host page replaces <body>', async ({ page }) => {
     await page.evaluate(() => { const b = document.createElement('body'); b.innerHTML = '<main><p>fresh harmonica page</p></main>'; document.body.replaceWith(b); });
-    await expect(page.locator('minisearch-ui')).toHaveCount(1);
+    await expect(page.locator('eyelight-ui')).toHaveCount(1);
     await page.keyboard.type('harmonica');
     await expect(ui(page).count).toHaveText('1 on page');
   });
@@ -523,7 +523,7 @@ test.describe('NF accessibility and robustness', () => {
 
   test('NF4 loading the script twice creates one component', async ({ page }) => {
     await load(page, `${HOME}double.html`);
-    expect(await page.locator('minisearch-ui').count()).toBe(1);
+    expect(await page.locator('eyelight-ui').count()).toBe(1);
     await page.keyboard.type('harmonica');
     await expect(ui(page).count).toHaveText('1 on page');
   });
@@ -538,17 +538,17 @@ test.describe('NF accessibility and robustness', () => {
   });
 
   test('NF5 no layout shift: the component sits outside the page flow', async ({ page }) => {
-    const pos = await page.evaluate(() => getComputedStyle(document.querySelector('minisearch-ui')).position);
+    const pos = await page.evaluate(() => getComputedStyle(document.querySelector('eyelight-ui')).position);
     expect(pos).toBe('fixed');
   });
 
   test('NF3 JS API: open with a query, setTheme, close', async ({ page }) => {
     const u = ui(page);
-    await page.evaluate(() => window.Minisearch.open('harmonica'));
+    await page.evaluate(() => window.Eyelight.open('harmonica'));
     await expect(u.count).toHaveText('4 on page');
-    await page.evaluate(() => window.Minisearch.setTheme('dark'));
+    await page.evaluate(() => window.Eyelight.setTheme('dark'));
     await expect(u.host).toHaveAttribute('data-theme', 'dark');
-    await page.evaluate(() => window.Minisearch.close());
+    await page.evaluate(() => window.Eyelight.close());
     await expectClosed(page);
   });
 });

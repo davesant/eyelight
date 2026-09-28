@@ -36,7 +36,7 @@ test('F6.2-F6.3 tap to open, search, step through matches, toggle and close', as
   await expect(u.options.first()).toBeVisible(); // switching back to suggestions shows them
   await u.close.tap();
   await expect(u.panel).toBeHidden();
-  expect(await page.evaluate(() => CSS.highlights.has('minisearch'))).toBe(false);
+  expect(await page.evaluate(() => CSS.highlights.has('eyelight'))).toBe(false);
 });
 
 test('F3.4 tapping a suggestion opens it on touch devices', async ({ page }) => {
@@ -59,7 +59,7 @@ test('F6.4 the bar moves up with the on-screen keyboard', async ({ page }) => {
     Object.defineProperty(vv, 'height', { configurable: true, get: () => innerHeight - 300 });
     vv.dispatchEvent(new Event('resize'));
   });
-  await expect(u.host).toHaveAttribute('style', /--ms-kb:\s*300px/);
+  await expect(u.host).toHaveAttribute('style', /--eyelight-kb:\s*300px/);
   const box = await u.panel.boundingBox();
   const vh = await page.evaluate(() => innerHeight);
   expect(box.y + box.height).toBeLessThanOrEqual(vh - 300);

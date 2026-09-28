@@ -4,4 +4,4 @@ playwright-report/
 .DS_Store
 # Build output. Only the script-tag build is committed (jsDelivr serves it from GitHub).
 dist/*
-!dist/minisearch.min.js
+!dist/eyelight.min.js

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Usage: minisearch-index <built-site-folder> [--out file] [--base /prefix/] [--exclude glob]... [--clean-urls]
+// Usage: eyelight-index <built-site-folder> [--out file] [--base /prefix/] [--exclude glob]... [--clean-urls]
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { buildIndex } from '../lib/build-index.js';
@@ -20,11 +20,11 @@ for (let i = 0; i < args.length; i++) {
   else if (!a.startsWith('-')) dir = a;
 }
 if (!dir || helpRequested) {
-  console.log(`minisearch-index - build a search index from a folder of HTML
+  console.log(`eyelight-index - build a search index from a folder of HTML
 
-Usage: minisearch-index <folder> [options]
+Usage: eyelight-index <folder> [options]
 
-  --out, -o <file>   output file (default: <folder>/minisearch-index.json)
+  --out, -o <file>   output file (default: <folder>/eyelight-index.json)
   --base <path>      URL prefix the folder is served from (default: /)
   --exclude <glob>   skip matching files, relative to folder (repeatable; default 404.html)
   --clean-urls       write /about instead of /about.html
@@ -34,10 +34,10 @@ Usage: minisearch-index <folder> [options]
 if (!opts.exclude.length) delete opts.exclude;
 try {
   const index = await buildIndex(dir, opts);
-  const file = out || join(dir, 'minisearch-index.json');
+  const file = out || join(dir, 'eyelight-index.json');
   await writeFile(file, JSON.stringify(index));
-  console.log(`minisearch-index: ${index.pages.length} pages -> ${file}`);
+  console.log(`eyelight-index: ${index.pages.length} pages -> ${file}`);
 } catch (e) {
-  console.error(`minisearch-index: ${e.message}`);
+  console.error(`eyelight-index: ${e.message}`);
   process.exit(1);
 }

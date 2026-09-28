@@ -1,5 +1,5 @@
-// Minisearch - type-anywhere search for any website.
-// https://github.com/davesant/minisearch  (MIT)
+// Eyelight - type-anywhere search for any website.
+// https://github.com/davesant/eyelight  (MIT)
 //
 // Requirement IDs (F1.1 etc.) refer to SPEC.md.
 
@@ -14,9 +14,9 @@ export const VERSION = '0.1.0';
 export const DEFAULTS = {
   prompt: '',
   include: 'main, [role=main]',
-  exclude: '[data-minisearch-ignore]',
-  noCapture: '[data-minisearch-nocapture]',
-  index: '/minisearch-index.json',
+  exclude: '[data-eyelight-ignore]',
+  noCapture: '[data-eyelight-nocapture]',
+  index: '/eyelight-index.json',
   sitemap: '/sitemap.xml',
   pages: null,
   theme: 'auto',
@@ -50,7 +50,7 @@ export const DEFAULTS = {
   },
 };
 
-const STORE = 'minisearch.capture';
+const STORE = 'eyelight.capture';
 const WIDGET_ROLES = new Set(('textbox searchbox combobox listbox menu menubar grid tree treegrid tablist slider ' +
   'spinbutton radiogroup application').split(' '));
 const NEVER_START = new Set([' ', '/', "'"]); // F1.8: keep page scrolling, button activation and Firefox Quick Find
@@ -61,9 +61,9 @@ let warned = false;
 function warn(e) {
   if (warned) return;
   warned = true;
-  try { console.warn('[minisearch]', e); } catch { /* ignore */ }
+  try { console.warn('[eyelight]', e); } catch { /* ignore */ }
 }
-// NF4: every handler is wrapped so a bug in minisearch never breaks the page.
+// NF4: every handler is wrapped so a bug in eyelight never breaks the page.
 const guard = (fn) => function guarded(...a) {
   try { return fn.apply(this, a); } catch (e) { warn(e); return undefined; }
 };
@@ -91,23 +91,23 @@ export function create(userCfg = {}) {
   const coarse = mq('(hover: none) and (pointer: coarse)');
 
   // ---------- DOM ----------
-  const host = document.createElement('minisearch-ui');
+  const host = document.createElement('eyelight-ui');
   host.setAttribute('data-theme', cfg.theme);
   host.setAttribute('data-position', cfg.position);
   const root = host.attachShadow({ mode: 'open' });
   root.innerHTML = `<style>${SHADOW_CSS}</style><div class="wrap" part="root">
 <button class="hint" part="hint" type="button"></button>
 <div class="panel" part="panel" role="search" hidden>
-<ul class="list" part="suggestions" role="listbox" id="ms-list" hidden></ul>
+<ul class="list" part="suggestions" role="listbox" id="el-list" hidden></ul>
 <div class="row" part="bar"><span class="prompt" part="prompt" aria-hidden="true"></span>
-<input part="input" id="ms-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
- aria-controls="ms-list" aria-describedby="ms-help" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
-<div class="acts"><span class="count" part="count" id="ms-count"></span>
+<input part="input" id="el-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+ aria-controls="el-list" aria-describedby="el-help" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+<div class="acts"><span class="count" part="count" id="el-count"></span>
 <button class="btn prev" part="button" type="button">${svg('<path d="m6 15 6-6 6 6"/>')}</button>
 <button class="btn next" part="button" type="button">${svg('<path d="m6 9 6 6 6-6"/>')}</button>
 <button class="btn mode" part="button" type="button" aria-pressed="false"></button>
 <button class="btn close" part="button" type="button">${svg('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div></div>
-<div class="foot" part="footer"><span id="ms-help"></span><button class="btn cap" part="button" type="button" aria-pressed="true"></button></div>
+<div class="foot" part="footer"><span id="el-help"></span><button class="btn cap" part="button" type="button" aria-pressed="true"></button></div>
 </div><div class="sr" role="status" aria-live="polite"></div></div>`;
   const $ = (s) => root.querySelector(s);
   const wrap = $('.wrap');
@@ -121,7 +121,7 @@ export function create(userCfg = {}) {
   const modeBtn = $('.mode');
   const closeBtn = $('.close');
   const capBtn = $('.cap');
-  const help = $('#ms-help');
+  const help = $('#el-help');
   const live = $('.sr');
 
   $('.row .prompt').textContent = cfg.prompt;
@@ -261,7 +261,7 @@ export function create(userCfg = {}) {
     const show = isOpen && mode === 'suggest' && listShown && sugg.length > 0;
     list.hidden = !show;
     input.setAttribute('aria-expanded', String(show));
-    if (show && active >= 0) input.setAttribute('aria-activedescendant', `ms-o${active}`);
+    if (show && active >= 0) input.setAttribute('aria-activedescendant', `el-o${active}`);
     else input.removeAttribute('aria-activedescendant');
   }
 
@@ -271,7 +271,7 @@ export function create(userCfg = {}) {
     sugg.forEach((e, i) => {
       const li = document.createElement('li');
       li.className = 'opt';
-      li.id = `ms-o${i}`;
+      li.id = `el-o${i}`;
       li.setAttribute('role', 'option');
       li.tabIndex = -1; // a tap focuses the option (inside the component) instead of blurring to nowhere
       li.setAttribute('part', 'suggestion');
@@ -292,7 +292,7 @@ export function create(userCfg = {}) {
   function setActive(i) {
     active = i;
     list.querySelectorAll('.opt').forEach((o, j) => o.setAttribute('aria-selected', String(j === i)));
-    const o = root.getElementById(`ms-o${i}`);
+    const o = root.getElementById(`el-o${i}`);
     if (o) { // scroll within the list only, never the host page
       if (o.offsetTop < list.scrollTop) list.scrollTop = o.offsetTop;
       else if (o.offsetTop + o.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = o.offsetTop + o.offsetHeight - list.clientHeight;
@@ -304,25 +304,25 @@ export function create(userCfg = {}) {
   function paint() {
     if (!hasHighlights()) return;
     if (!ranges.length) {
-      CSS.highlights.delete('minisearch');
-      CSS.highlights.delete('minisearch-current');
+      CSS.highlights.delete('eyelight');
+      CSS.highlights.delete('eyelight-current');
       return;
     }
     const all = new Highlight();
     for (const r of ranges) all.add(r);
-    CSS.highlights.set('minisearch', all);
+    CSS.highlights.set('eyelight', all);
     const cur = ranges[current];
     if (cur) {
       const h = new Highlight(cur);
       h.priority = 1;
-      CSS.highlights.set('minisearch-current', h);
-    } else CSS.highlights.delete('minisearch-current');
+      CSS.highlights.set('eyelight-current', h);
+    } else CSS.highlights.delete('eyelight-current');
   }
 
   function clearHighlights() {
     if (!hasHighlights()) return;
-    CSS.highlights.delete('minisearch');
-    CSS.highlights.delete('minisearch-current');
+    CSS.highlights.delete('eyelight');
+    CSS.highlights.delete('eyelight-current');
   }
 
   function firstVisible() {
@@ -535,14 +535,14 @@ export function create(userCfg = {}) {
   const onViewport = guard(() => {
     const vv = window.visualViewport;
     const off = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-    host.style.setProperty('--ms-kb', `${Math.round(off)}px`);
+    host.style.setProperty('--eyelight-kb', `${Math.round(off)}px`);
   });
   function trackViewport(on) {
     const vv = window.visualViewport;
     if (!vv) return;
     vv[on ? 'addEventListener' : 'removeEventListener']('resize', onViewport);
     vv[on ? 'addEventListener' : 'removeEventListener']('scroll', onViewport);
-    if (on) onViewport(); else host.style.removeProperty('--ms-kb');
+    if (on) onViewport(); else host.style.removeProperty('--eyelight-kb');
   }
 
   // ---------- keyboard ----------
@@ -690,10 +690,10 @@ export function create(userCfg = {}) {
   const onMq = guard(() => { renderHint(); renderHelp(); });
   coarse.addEventListener && coarse.addEventListener('change', onMq);
 
-  let style = document.querySelector('style[data-minisearch]');
+  let style = document.querySelector('style[data-eyelight]');
   if (!style) {
     style = document.createElement('style');
-    style.setAttribute('data-minisearch', '');
+    style.setAttribute('data-eyelight', '');
     style.textContent = HIGHLIGHT_CSS;
     (document.head || document.documentElement).prepend(style);
   }
@@ -729,7 +729,7 @@ export function create(userCfg = {}) {
       coarse.removeEventListener && coarse.removeEventListener('change', onMq);
       host.remove();
       style.remove();
-      if (window.Minisearch === api) window.Minisearch = { init, version: VERSION };
+      if (window.Eyelight === api) window.Eyelight = { init, version: VERSION };
     }),
   };
   return api;
@@ -739,13 +739,13 @@ export function create(userCfg = {}) {
 export function init(cfg) {
   try {
     if (typeof window === 'undefined' || !document.body || !document.body.attachShadow) return null;
-    const old = window.Minisearch;
+    const old = window.Eyelight;
     if (old && old.element) {
       if (old.element.isConnected) return old;
       old.destroy(); // stale instance from a replaced <body>
     }
     const api = create(cfg || {});
-    window.Minisearch = api;
+    window.Eyelight = api;
     return api;
   } catch (e) {
     warn(e);
