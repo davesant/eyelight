@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuration - Minisearch</title>
+<meta name="description" content="All Minisearch options, the JavaScript API, and how to style it with CSS custom properties, parts and highlight rules.">
+<meta name="keywords" content="options, settings, api, theming, css variables, dark mode, styling">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="top"><div class="in">
+  <a class="brand" href="/minisearch/">mini<span>search</span></a>
+  <nav aria-label="Main">
+    <a href="/minisearch/">Overview</a>
+    <a href="/minisearch/configuration.html" aria-current="page">Configuration</a>
+    <a href="/minisearch/search-data.html">Search data</a>
+    <a href="/minisearch/accessibility.html">Accessibility</a>
+    <a href="/minisearch/demo/">Demo site</a>
+    <a href="https://github.com/davesant/minisearch">GitHub</a>
+  </nav>
+</div></header>
+
+<main id="content" class="wide">
+<h1>Configuration</h1>
+<p class="lead">Every option can be set with a <code>data-*</code> attribute on the script tag, or in a <code>window.minisearchConfig</code> object defined before the script runs. If both set the same option, the attribute wins.</p>
+
+<pre><code>&lt;script&gt;
+  window.minisearchConfig = {
+    prompt: 'search',
+    include: 'article',
+    exclude: '.comments, [data-minisearch-ignore]',
+    ignoreKeys: ['j', 'k', '?'],     // your own single-key shortcuts
+    labels: { close: 'Fermer' }
+  };
+&lt;/script&gt;
+&lt;script src="minisearch.min.js" defer&gt;&lt;/script&gt;</code></pre>
+
+<h2 id="options">Options</h2>
+<div class="tw"><table>
+<thead><tr><th scope="col">Option</th><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">What it does</th></tr></thead>
+<tbody>
+<tr><td><code>prompt</code></td><td><code>data-prompt</code></td><td><code>""</code></td><td>Text shown before the idle cursor and in the box, e.g. "search".</td></tr>
+<tr><td><code>include</code></td><td><code>data-include</code></td><td><code>main, [role=main]</code></td><td>CSS selector for the parts of the page that are searched. If nothing matches, the whole body is searched.</td></tr>
+<tr><td><code>exclude</code></td><td><code>data-exclude</code></td><td><code>[data-minisearch-ignore]</code></td><td>Selector for areas inside <code>include</code> that are never searched.</td></tr>
+<tr><td><code>noCapture</code></td><td><code>data-no-capture</code></td><td><code>[data-minisearch-nocapture]</code></td><td>Selector for areas where typing is never captured, such as a game or a custom widget.</td></tr>
+<tr><td><code>index</code></td><td><code>data-index</code></td><td><code>/minisearch-index.json</code></td><td>URL of the page index. Use <code>false</code> to skip it. The default path is relative to the domain root, so if your site lives in a sub-folder, set this (see <a href="search-data.html#subpath">sub-folders</a>).</td></tr>
+<tr><td><code>sitemap</code></td><td><code>data-sitemap</code></td><td><code>/sitemap.xml</code></td><td>Fallback if the index can't be loaded. Use <code>false</code> to skip it.</td></tr>
+<tr><td><code>pages</code></td><td>-</td><td><code>null</code></td><td>Your own list of pages, <code>[{url, title, description, keywords, headings}]</code>. It's always merged in with the other sources.</td></tr>
+<tr><td><code>theme</code></td><td><code>data-theme</code></td><td><code>auto</code></td><td><code>auto</code>, <code>light</code> or <code>dark</code>.</td></tr>
+<tr><td><code>position</code></td><td><code>data-position</code></td><td><code>center</code></td><td>Where the idle cursor sits: <code>center</code>, <code>left</code> or <code>right</code>.</td></tr>
+<tr><td><code>minChars</code></td><td><code>data-min-chars</code></td><td><code>2</code></td><td>How many characters are needed before page matches are highlighted.</td></tr>
+<tr><td><code>maxSuggestions</code></td><td><code>data-max-suggestions</code></td><td><code>8</code></td><td>The most page suggestions to show. <code>0</code> turns suggestions off.</td></tr>
+<tr><td><code>ignoreKeys</code></td><td><code>data-ignore-keys</code></td><td><code>""</code></td><td>Keys that are never captured, e.g. <code>"j,k,?"</code>. It's usually better to call <code>preventDefault()</code> in your own shortcut handlers, because Minisearch ignores any key you've already handled.</td></tr>
+<tr><td><code>capture</code></td><td><code>data-capture</code></td><td><code>true</code></td><td>Set to <code>false</code> to turn off type-anywhere. Users can still click the hint to search.</td></tr>
+<tr><td><code>hint</code></td><td><code>data-hint</code></td><td><code>true</code></td><td>Set to <code>false</code> to hide the idle cursor and button. Use this if you have your own search button that calls <code>Minisearch.open()</code>.</td></tr>
+<tr><td><code>mobileButton</code></td><td><code>data-mobile-button</code></td><td><code>auto</code></td><td><code>auto</code> shows the floating button on touch-only devices. <code>always</code> shows it everywhere, and <code>never</code> hides it.</td></tr>
+<tr><td><code>navigate</code></td><td>-</td><td>-</td><td><code>(url) =&gt; void</code>. Use it for single-page apps that route their own links.</td></tr>
+<tr><td><code>labels</code></td><td>-</td><td>English</td><td>Visible text and screen reader text, for translation. See below.</td></tr>
+<tr><td>-</td><td><code>data-manual</code></td><td>-</td><td>Don't start automatically. Call <code>Minisearch.init(config)</code> yourself.</td></tr>
+</tbody></table></div>
+
+<h3 id="labels">Labels</h3>
+<p>You can override any of these in <code>labels</code>. <code>{n}</code>, <code>{i}</code>, <code>{m}</code> and <code>{s}</code> are placeholders.</p>
+<pre><code>hint, hintOff, input, suggestions, prev, next, mode, close,
+captureOn, captureOff, helpSuggest, helpPage, helpTouch,
+total ("{n} on page"), position ("{i} of {n}"), none, announce, closed</code></pre>
+
+<h2 id="api">JavaScript API</h2>
+<div class="tw"><table>
+<thead><tr><th scope="col">Call</th><th scope="col">What it does</th></tr></thead>
+<tbody>
+<tr><td><code>Minisearch.open(query?)</code></td><td>Opens the search, optionally with some text already in the box.</td></tr>
+<tr><td><code>Minisearch.close()</code></td><td>Closes the search and removes the highlights.</td></tr>
+<tr><td><code>Minisearch.setTheme('light' | 'dark' | 'auto')</code></td><td>Changes the theme, e.g. from your own theme switch.</td></tr>
+<tr><td><code>Minisearch.setCapture(bool)</code></td><td>Turns type-anywhere on or off, and remembers the choice.</td></tr>
+<tr><td><code>Minisearch.reindex()</code></td><td>Reloads the page index.</td></tr>
+<tr><td><code>Minisearch.destroy()</code></td><td>Removes Minisearch from the page completely.</td></tr>
+</tbody></table></div>
+<p>With a bundler, use <code>import { init } from '@davesant/minisearch'</code>. <code>init(config)</code> returns the same API.</p>
+
+<h2 id="styling">Styling</h2>
+<p>The component lives in a shadow root, so your CSS can't break it and its CSS can't leak into your site. You can style it in three ways.</p>
+
+<h3 id="variables">1. CSS custom properties</h3>
+<pre><code>minisearch-ui {
+  --ms-bg: #fffaf0;      --ms-fg: #2b2118;
+  --ms-muted: #6b5a48;   --ms-border: #b89f84;
+  --ms-accent: #a4410e;  --ms-accent-fg: #fff;
+  --ms-active: #f6e7d3;  --ms-subtle: #eadccb;
+  --ms-mark: #ffd98a;    --ms-mark-fg: #2b2118;
+  --ms-radius: 4px;      --ms-font: Georgia, serif;
+  --ms-width: 36rem;     --ms-gap: 20px;
+  --ms-shadow: none;     --ms-z: 1000;
+}
+/* Match your own dark mode switch */
+html.dark minisearch-ui { --ms-bg: #1b1612; --ms-fg: #f3e9dc; /* … */ }</code></pre>
+<p>If you change colours, check that text still has at least 4.5:1 contrast against the background.</p>
+
+<h3 id="parts">2. Parts</h3>
+<p>For anything else, these parts can be styled with <code>minisearch-ui::part(name)</code>: <code>hint</code>, <code>caret</code>, <code>prompt</code>, <code>panel</code>, <code>suggestions</code>, <code>suggestion</code>, <code>bar</code>, <code>input</code>, <code>count</code>, <code>button</code>, <code>footer</code>.</p>
+
+<h3 id="highlights">3. Highlight colours</h3>
+<p>Matches on the page are painted with the CSS Custom Highlight API. Your own rules win over the defaults:</p>
+<pre><code>::highlight(minisearch)         { background-color: #c7f0d8; color: #000; }
+::highlight(minisearch-current) { background-color: #1a7f4b; color: #fff; }</code></pre>
+<p>In Windows high contrast mode, the system Mark and Highlight colours are used automatically.</p>
+</main>
+
+<footer class="bot"><div class="in">Minisearch v0.1.0 · MIT licence · <a href="https://github.com/davesant/minisearch">github.com/davesant/minisearch</a></div></footer>
+<script src="/minisearch/minisearch.min.js" defer data-prompt="type to search" data-index="/minisearch/minisearch-index.json" data-sitemap="false"></script>
+</body>
+</html>

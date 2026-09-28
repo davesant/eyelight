@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minisearch - type anywhere to search</title>
+<meta name="description" content="A drop-in, open source search box for any website. Highlights matches on the page as you type and suggests other pages on the site.">
+<meta name="keywords" content="demo, quick start, install, site search, find in page">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="top"><div class="in">
+  <a class="brand" href="/minisearch/">mini<span>search</span></a>
+  <nav aria-label="Main">
+    <a href="/minisearch/" aria-current="page">Overview</a>
+    <a href="/minisearch/configuration.html">Configuration</a>
+    <a href="/minisearch/search-data.html">Search data</a>
+    <a href="/minisearch/accessibility.html">Accessibility</a>
+    <a href="/minisearch/demo/">Demo site</a>
+    <a href="https://github.com/davesant/minisearch">GitHub</a>
+  </nav>
+</div></header>
+
+<main id="content" class="wide">
+<h1>Type anywhere to search</h1>
+<p class="lead">Minisearch is an open source search box that any website can add with one script tag. As you type, it highlights matches on the page and suggests other pages on the site. When you're done, it gets out of the way.</p>
+
+<div class="try" id="try">
+  <p><strong>This page is the live demo.</strong> Start typing anywhere, for example <kbd>harmonica</kbd>, <kbd>bend</kbd> or <kbd>install</kbd>.</p>
+  <p>Press <kbd>Esc</kbd> to jump between matches on this page, and press it twice quickly to close. On a phone, tap the search button in the corner.</p>
+</div>
+
+<h2 id="features">What it does</h2>
+<div class="grid">
+  <div class="card"><h3>Type anywhere</h3><p>Typing on any page sends the text to a search box at the bottom of the screen. A blinking cursor hints that you can.</p></div>
+  <div class="card"><h3>Highlight on the page</h3><p>From two characters, every match on the page is highlighted. It ignores case and accents, and never changes your HTML.</p></div>
+  <div class="card"><h3>Suggest pages</h3><p>Pages and sections from the same site are suggested as you type. The data comes from a small static index.</p></div>
+  <div class="card"><h3>Keyboard first</h3><p>Move through matches with the arrow keys or Tab. <kbd>Esc</kbd> switches between page matches and site suggestions.</p></div>
+  <div class="card"><h3>Works on phones</h3><p>On touch screens, a floating button opens the same search, with large buttons for moving between matches.</p></div>
+  <div class="card"><h3>Accessible and polite</h3><p>Built to WCAG 2.2 AA. Users can turn type-to-search off. It respects reduced motion and never traps focus.</p></div>
+</div>
+
+<h2 id="quick-start">Quick start</h2>
+<h3 id="install">1. Add the script</h3>
+<p>Put this anywhere in your pages, for example just before <code>&lt;/body&gt;</code>. It's deferred, about 10 KB gzipped, and does nothing until someone starts typing.</p>
+<pre><code>&lt;script src="https://cdn.jsdelivr.net/gh/davesant/minisearch@main/dist/minisearch.min.js"
+        defer data-prompt="type to search"&gt;&lt;/script&gt;</code></pre>
+<p>You can also self-host <code>dist/minisearch.min.js</code>, or install it from npm as <code>@davesant/minisearch</code> and <code>import { init } from '@davesant/minisearch'</code>.</p>
+
+<h3 id="index">2. Build a search index (for page suggestions)</h3>
+<p>After your site builds, run the index tool over the output folder. It writes <code>minisearch-index.json</code> with each page's title, description, keywords and headings.</p>
+<pre><code>npx -p @davesant/minisearch minisearch-index ./public</code></pre>
+<p>No index? Minisearch falls back to your <code>sitemap.xml</code>, or you can list pages yourself. See <a href="search-data.html">Search data</a>.</p>
+
+<h3 id="scope">3. Optional: choose what's searched</h3>
+<pre><code>&lt;nav data-minisearch-ignore&gt;…&lt;/nav&gt;              &lt;!-- not searched --&gt;
+&lt;div data-minisearch-nocapture&gt;…&lt;/div&gt;         &lt;!-- typing here isn't captured --&gt;</code></pre>
+<p>By default, Minisearch searches the page's <code>&lt;main&gt;</code> element (or the whole body if there isn't one). Every option is listed on the <a href="configuration.html">Configuration</a> page.</p>
+
+<h2 id="keys">Keyboard reference</h2>
+<div class="tw"><table>
+  <thead><tr><th scope="col">Key</th><th scope="col">Site suggestions</th><th scope="col">In-page matches</th></tr></thead>
+  <tbody>
+    <tr><td>Any letter or number</td><td colspan="2">Opens search, or adds to the search text</td></tr>
+    <tr><td><kbd>↓</kbd> <kbd>↑</kbd></td><td>Move through suggestions</td><td>Next or previous match</td></tr>
+    <tr><td><kbd>→</kbd> <kbd>←</kbd></td><td>Move the text cursor</td><td>Next or previous match</td></tr>
+    <tr><td><kbd>Tab</kbd> <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Move focus as normal</td><td>Next or previous match</td></tr>
+    <tr><td><kbd>Enter</kbd></td><td>Open the selected page, or go to page matches</td><td>Next match (<kbd>Shift</kbd>+<kbd>Enter</kbd>: previous)</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Switch to in-page matches</td><td>Switch to site suggestions</td></tr>
+    <tr><td><kbd>Esc</kbd> <kbd>Esc</kbd> (quickly)</td><td colspan="2">Close search and remove the highlights</td></tr>
+  </tbody>
+</table></div>
+<p>Keys are never captured when you're typing in a form field or editable area, when you use Ctrl, Alt or Cmd, or when the site has already handled the key. <kbd>Space</kbd>, <kbd>/</kbd> and <kbd>'</kbd> are never taken from the page, so scrolling, buttons and Firefox's Quick Find keep working.</p>
+
+<h2 id="theme">Light and dark</h2>
+<p>Minisearch follows the system colour scheme by default. Sites with their own theme switch can call <code>Minisearch.setTheme()</code>. Try it:</p>
+<div class="controls" role="group" aria-label="Theme">
+  <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
+  <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
+  <button type="button" data-theme-btn="auto" aria-pressed="true">Auto</button>
+</div>
+<p>You can also change colours, corner radius, fonts and more with CSS custom properties. See the <a href="demo/custom-theme.html">custom theme demo</a>.</p>
+
+<h2 id="browsers">Browser support</h2>
+<p>Current versions of Chrome, Edge, Firefox and Safari. Highlighting uses the CSS Custom Highlight API. In older browsers without it, search, match counts and scrolling still work, but matches aren't painted. If the script fails to load, your site simply works as it did before.</p>
+
+<h2 id="licence">Licence</h2>
+<p>MIT. Source, issues and contributions are on <a href="https://github.com/davesant/minisearch">GitHub</a>. <a href="https://miniharp.dev">miniharp.dev</a> is the first site to use it.</p>
+</main>
+
+<footer class="bot"><div class="in">Minisearch v0.1.0 · MIT licence · <a href="https://github.com/davesant/minisearch">github.com/davesant/minisearch</a></div></footer>
+
+<script>
+  // Demo theme switcher: themes the page and Minisearch together.
+  document.querySelectorAll('[data-theme-btn]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.getAttribute('data-theme-btn');
+      if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', t);
+      if (window.Minisearch && Minisearch.setTheme) Minisearch.setTheme(t);
+      document.querySelectorAll('[data-theme-btn]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+    });
+  });
+</script>
+<script src="/minisearch/minisearch.min.js" defer data-prompt="type to search" data-index="/minisearch/minisearch-index.json" data-sitemap="false"></script>
+</body>
+</html>
