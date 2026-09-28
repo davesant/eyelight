@@ -97,3 +97,19 @@ test('NF6.1 default light and dark themes meet WCAG AA contrast', async () => {
   assert.ok(ratio('#111111', '#ffe36e') >= 4.5, 'page highlight');
   assert.ok(ratio('#000000', '#ff9632') >= 4.5, 'current highlight');
 });
+
+// Screen blend of two colours, as the marker overlay does on dark pages.
+const screen = (a, b) => `#${[1, 3, 5].map((i) => Math.round(255 * (1 - (1 - parseInt(a.slice(i, i + 2), 16) / 255) * (1 - parseInt(b.slice(i, i + 2), 16) / 255))).toString(16).padStart(2, '0')).join('')}`;
+
+test('NF6.1 marker strokes keep page text at AA contrast', async () => {
+  const css = await readFile('src/styles.js', 'utf8');
+  const get = (name) => Object.fromEntries([...css.match(new RegExp(`const ${name} = '([^']*)'`))[1].matchAll(/--eyelight-([\w-]+):(#[0-9a-f]{6})/gi)].map((m) => [m[1], m[2]]));
+  const light = get('MARK_LIGHT');
+  const dark = get('MARK_DARK');
+  // Light pages: multiply over white leaves the marker colour behind dark text.
+  assert.ok(ratio('#111111', light.marker) >= 4.5, 'light marker');
+  assert.ok(ratio('#111111', light['marker-current']) >= 4.5, 'light current marker');
+  // Dark pages: screen over a typical dark background, with light grey text.
+  assert.ok(ratio('#e6e6e6', screen('#1f2023', dark.marker)) >= 4.5, 'dark marker');
+  assert.ok(ratio('#e6e6e6', screen('#1f2023', dark['marker-current'])) >= 4.5, 'dark current marker');
+});

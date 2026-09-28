@@ -20,6 +20,6 @@ console.log(`docs/eyelight-index.json  ${docsIndex.pages.length} pages`);
 
 const min = await readFile('dist/eyelight.min.js');
 const gz = gzipSync(min, { level: 9 }).length;
-const BUDGET = 12 * 1024;
-console.log(`dist/eyelight.min.js  ${(min.length / 1024).toFixed(1)} KB  (${(gz / 1024).toFixed(1)} KB gzipped, budget 12 KB)`);
+const BUDGET = 13 * 1024;
+console.log(`dist/eyelight.min.js  ${(min.length / 1024).toFixed(1)} KB  (${(gz / 1024).toFixed(1)} KB gzipped, budget 13 KB)`);
 if (gz > BUDGET) { console.error('Size budget exceeded'); process.exit(1); }

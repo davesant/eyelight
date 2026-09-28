@@ -3,7 +3,7 @@
 //
 // Requirement IDs (F1.1 etc.) refer to SPEC.md.
 
-import { SHADOW_CSS, HIGHLIGHT_CSS } from './styles.js';
+import { SHADOW_CSS, HIGHLIGHT_CSS, MARKER_HIGHLIGHT_CSS } from './styles.js';
 import { foldQuery, words, foldChar } from './fold.js';
 import { buildPageText, findAll, toRange, MAX_MATCHES } from './pagetext.js';
 import { loadPages } from './data.js';
@@ -20,7 +20,10 @@ export const DEFAULTS = {
   sitemap: '/sitemap.xml',
   pages: null,
   theme: 'auto',
-  position: 'center',
+  position: 'left',
+  startMode: 'page',
+  caret: 'block',
+  highlight: 'marker',
   minChars: 2,
   maxSuggestions: 8,
   ignoreKeys: '',
@@ -39,16 +42,29 @@ export const DEFAULTS = {
     close: 'Close search',
     captureOn: 'Type-to-search: on',
     captureOff: 'Type-to-search: off',
-    helpSuggest: 'Esc: page matches · Esc Esc: close',
-    helpPage: 'Arrows or Tab: next match · Esc: site pages · Esc Esc: close',
+    helpSuggest: 'Enter: open page · Esc: back to page matches',
+    helpPage: 'Arrows or Tab: next match · Enter: site pages · Esc: close',
     helpTouch: 'Use ↑ ↓ to move between matches',
     total: '{n} on page',
     position: '{i} of {n}',
     none: 'No matches',
+    noPages: 'No matching pages',
     announce: '{m} on this page. {s} pages suggested.',
+    announcePage: '{m} on this page.',
     closed: 'Search closed',
   },
 };
+
+// Default help text when startMode is 'suggest' (suggestions while typing, Esc toggles).
+const SUGGEST_FIRST_LABELS = {
+  helpSuggest: 'Esc: page matches · Esc Esc: close',
+  helpPage: 'Arrows or Tab: next match · Esc: site pages · Esc Esc: close',
+};
+// Marker shape: the host's SVG filter (turbulence warps each stroke's ends).
+const MARKER_FILTER = '<filter id="el-mf" x="-20%" y="-50%" width="140%" height="200%"><feTurbulence type="fractalNoise" ' +
+  'baseFrequency="0 0.15" numOctaves="1" result="warp"/><feDisplacementMap xChannelSelector="R" yChannelSelector="G" ' +
+  'scale="30" in="SourceGraphic" in2="warp"/></filter>';
+const SVGNS = 'http://www.w3.org/2000/svg';
 
 const STORE = 'eyelight.capture';
 const WIDGET_ROLES = new Set(('textbox searchbox combobox listbox menu menubar grid tree treegrid tablist slider ' +
@@ -80,7 +96,11 @@ function parseKeys(v) {
 }
 
 export function create(userCfg = {}) {
-  const cfg = { ...DEFAULTS, ...userCfg, labels: { ...DEFAULTS.labels, ...(userCfg.labels || {}) } };
+  const pageFirst = (userCfg.startMode || DEFAULTS.startMode) !== 'suggest';
+  const baseLabels = pageFirst ? DEFAULTS.labels : { ...DEFAULTS.labels, ...SUGGEST_FIRST_LABELS };
+  const cfg = { ...DEFAULTS, ...userCfg, labels: { ...baseLabels, ...(userCfg.labels || {}) } };
+  const marker = cfg.highlight !== 'solid';
+  const block = cfg.caret !== 'bar';
   const L = cfg.labels;
   const ignore = parseKeys(cfg.ignoreKeys);
   for (const k of ['include', 'exclude', 'noCapture']) { // a bad selector must not break search (NF4)
@@ -94,21 +114,23 @@ export function create(userCfg = {}) {
   const host = document.createElement('eyelight-ui');
   host.setAttribute('data-theme', cfg.theme);
   host.setAttribute('data-position', cfg.position);
+  host.setAttribute('data-caret', block ? 'block' : 'bar');
   const root = host.attachShadow({ mode: 'open' });
   root.innerHTML = `<style>${SHADOW_CSS}</style><div class="wrap" part="root">
 <button class="hint" part="hint" type="button"></button>
 <div class="panel" part="panel" role="search" hidden>
-<ul class="list" part="suggestions" role="listbox" id="el-list" hidden></ul>
+<div class="empty" part="empty" hidden></div><ul class="list" part="suggestions" role="listbox" id="el-list" hidden></ul>
 <div class="row" part="bar"><span class="prompt" part="prompt" aria-hidden="true"></span>
-<input part="input" id="el-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
- aria-controls="el-list" aria-describedby="el-help" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+<span class="field"><input part="input" id="el-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+ aria-controls="el-list" aria-describedby="el-help" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><span class="bcaret" part="cursor" aria-hidden="true" hidden></span><span class="meas" aria-hidden="true"></span></span>
 <div class="acts"><span class="count" part="count" id="el-count"></span>
 <button class="btn prev" part="button" type="button">${svg('<path d="m6 15 6-6 6 6"/>')}</button>
 <button class="btn next" part="button" type="button">${svg('<path d="m6 9 6 6 6-6"/>')}</button>
 <button class="btn mode" part="button" type="button" aria-pressed="false"></button>
 <button class="btn close" part="button" type="button">${svg('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div></div>
 <div class="foot" part="footer"><span id="el-help"></span><button class="btn cap" part="button" type="button" aria-pressed="true"></button></div>
-</div><div class="sr" role="status" aria-live="polite"></div></div>`;
+</div><div class="sr" role="status" aria-live="polite"></div></div>
+<svg class="marks" part="marks" aria-hidden="true" hidden><defs>${MARKER_FILTER}</defs><g></g></svg>`;
   const $ = (s) => root.querySelector(s);
   const wrap = $('.wrap');
   const hint = $('.hint');
@@ -123,6 +145,12 @@ export function create(userCfg = {}) {
   const capBtn = $('.cap');
   const help = $('#el-help');
   const live = $('.sr');
+  const bcaret = $('.bcaret');
+  const meas = $('.meas');
+  const marksSvg = $('.marks');
+  const marksG = $('.marks g');
+  const empty = $('.empty');
+  empty.textContent = L.noPages;
 
   $('.row .prompt').textContent = cfg.prompt;
   $('.row .prompt').hidden = !cfg.prompt;
@@ -154,6 +182,10 @@ export function create(userCfg = {}) {
   let moTimer = 0;
   let liveTimer = 0;
   let destroyed = false;
+  let marks = []; // marker strokes in document coordinates
+  let band = null; // [top, bottom] document band currently drawn
+  let markRaf = 0;
+  let measureTimer = 0;
 
   // ---------- helpers ----------
   function deepActive() {
@@ -258,6 +290,7 @@ export function create(userCfg = {}) {
   }
 
   function renderList() {
+    renderEmpty();
     const show = isOpen && mode === 'suggest' && listShown && sugg.length > 0;
     list.hidden = !show;
     input.setAttribute('aria-expanded', String(show));
@@ -301,13 +334,12 @@ export function create(userCfg = {}) {
   }
 
   // ---------- highlights (F2) ----------
-  function paint() {
+  // The Highlight registry always holds the matches. In marker mode it paints
+  // nothing (except in forced colours); the overlay below draws the strokes.
+  function paint(remeasure) {
+    if (marker) { if (remeasure) measureMarks(); else drawMarks(true); }
     if (!hasHighlights()) return;
-    if (!ranges.length) {
-      CSS.highlights.delete('eyelight');
-      CSS.highlights.delete('eyelight-current');
-      return;
-    }
+    if (!ranges.length) { clearHighlights(); return; }
     const all = new Highlight();
     for (const r of ranges) all.add(r);
     CSS.highlights.set('eyelight', all);
@@ -324,6 +356,121 @@ export function create(userCfg = {}) {
     CSS.highlights.delete('eyelight');
     CSS.highlights.delete('eyelight-current');
   }
+
+  // ---------- marker pen overlay (F2.6) ----------
+  // Strokes are drawn in an SVG layer inside the component, positioned in page
+  // coordinates so they scroll with the page natively, and blended onto it, so
+  // the page's DOM is never touched. Each stroke is 1em high, 0.1em below the
+  // top of the text, and 0.25em wider than it at each end.
+  let cvs = null;
+  function isDark(color) { // any CSS colour, via a 1x1 canvas; null if (mostly) transparent
+    cvs = cvs || document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    cvs.clearRect(0, 0, 1, 1);
+    cvs.fillStyle = color;
+    cvs.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = cvs.getImageData(0, 0, 1, 1).data;
+    return a < 128 ? null : (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.45;
+  }
+  function pageIsDark(el) { // first opaque background behind the matches
+    for (; el; el = el.parentElement) {
+      const d = isDark(getComputedStyle(el).backgroundColor);
+      if (d != null) return d;
+    }
+    return false;
+  }
+
+  function lineRects(r) { // merge the fragments of a range that sit on the same line
+    const out = [];
+    for (const b of [...r.getClientRects()].filter((q) => q.width > 0 && q.height > 0).sort((p, q) => p.top - q.top || p.left - q.left)) {
+      const o = out.find((q) => Math.min(q.bottom, b.bottom) - Math.max(q.top, b.top) > Math.min(q.bottom - q.top, b.height) / 2 && b.left <= q.right + 2 && b.right >= q.left - 2);
+      if (o) { o.left = Math.min(o.left, b.left); o.right = Math.max(o.right, b.right); o.top = Math.min(o.top, b.top); o.bottom = Math.max(o.bottom, b.bottom); }
+      else out.push({ left: b.left, right: b.right, top: b.top, bottom: b.bottom });
+    }
+    return out;
+  }
+
+  let scrollers = new Set(); // overflow containers that hold matches
+  function clipOf(el, cache) { // visible padding box of the overflow containers around el (client coords)
+    if (!el || el === document.body || el === document.documentElement) return null;
+    if (cache.has(el)) return cache.get(el);
+    let c = clipOf(el.parentElement, cache);
+    const cs = getComputedStyle(el);
+    if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') {
+      scrollers.add(el);
+      const b = el.getBoundingClientRect();
+      const x = b.left + el.clientLeft;
+      const y = b.top + el.clientTop;
+      c = c ? { left: Math.max(c.left, x), top: Math.max(c.top, y), right: Math.min(c.right, x + el.clientWidth), bottom: Math.min(c.bottom, y + el.clientHeight) }
+        : { left: x, top: y, right: x + el.clientWidth, bottom: y + el.clientHeight };
+    }
+    cache.set(el, c);
+    return c;
+  }
+
+  function measureMarks() {
+    marks = [];
+    band = null;
+    scrollers = new Set();
+    marksSvg.toggleAttribute('hidden', !(isOpen && ranges.length)); // SVG elements have no .hidden property
+    if (!isOpen || !ranges.length) { marksG.replaceChildren(); return; }
+    host.setAttribute('data-page', pageIsDark(ranges[0].startContainer.parentElement) ? 'dark' : 'light');
+    const o = marksSvg.getBoundingClientRect(); // the layer's origin, wherever the page puts it
+    const ems = new Map();
+    const clips = new Map();
+    ranges.forEach((r, i) => {
+      const el = r.startContainer.parentElement;
+      if (!ems.has(el)) ems.set(el, parseFloat(getComputedStyle(el).fontSize) || 16);
+      const em = ems.get(el);
+      const c = clipOf(el, clips);
+      for (const b of lineRects(r)) {
+        let x1 = b.left - em / 4;
+        let x2 = b.right + em / 4;
+        let y1 = b.top + em / 10;
+        let y2 = y1 + em;
+        if (c) { x1 = Math.max(x1, c.left); x2 = Math.min(x2, c.right); y1 = Math.max(y1, c.top); y2 = Math.min(y2, c.bottom); }
+        if (x2 - x1 > 1 && y2 - y1 > 1) marks.push({ x: x1 - o.left, y: y1 - o.top, w: x2 - x1, h: y2 - y1, i });
+      }
+    });
+    drawMarks(true);
+  }
+
+  function drawMarks(force) { // only strokes within a viewport of the screen are drawn
+    if (!marks.length) return;
+    const vh = window.innerHeight;
+    const top = -marksSvg.getBoundingClientRect().top;
+    if (!force && band && top >= band[0] && top + vh <= band[1]) return;
+    band = [top - vh, top + 2 * vh];
+    const frag = document.createDocumentFragment();
+    const cur = [];
+    for (const m of marks) {
+      if (m.y + m.h < band[0] || m.y > band[1]) continue;
+      const seed = Math.round(m.y * 7 + m.x * 3) % 200; // stable, different warp per stroke
+      const el = document.createElementNS(SVGNS, 'rect');
+      el.setAttribute('y', seed);
+      el.setAttribute('width', m.w);
+      el.setAttribute('height', m.h);
+      el.setAttribute('transform', `translate(${m.x} ${m.y - seed})`);
+      el.setAttribute('filter', 'url(#el-mf)');
+      if (m.i === current) { el.setAttribute('class', 'cur'); cur.push(el); } else frag.append(el);
+    }
+    frag.append(...cur); // current stroke on top
+    marksG.replaceChildren(frag);
+  }
+
+  function remeasure(now) { // re-measure on the next frame, or once things settle
+    clearTimeout(measureTimer);
+    if (now) { if (!markRaf) markRaf = requestAnimationFrame(guard(() => { markRaf = 0; if (isOpen) measureMarks(); })); }
+    else measureTimer = setTimeout(guard(() => { if (isOpen) measureMarks(); }), 200);
+  }
+
+  const onPageScroll = guard((e) => {
+    if (!isOpen || !marks.length) return;
+    if (e.target === document || e.target === document.documentElement) {
+      if (!markRaf) markRaf = requestAnimationFrame(guard(() => { markRaf = 0; drawMarks(); }));
+      remeasure(); // once scrolling settles (sticky and fixed content)
+    } else if (scrollers.has(e.target)) remeasure(true);
+  });
+  const onLayout = guard(() => { if (isOpen && marks.length) remeasure(); }); // images, fonts, <details>
 
   function firstVisible() {
     const top = window.visualViewport ? window.visualViewport.offsetTop : 0;
@@ -360,7 +507,7 @@ export function create(userCfg = {}) {
         scrollToRange(ranges[current]);
       }
     }
-    paint();
+    paint(true);
     renderCount();
   }
 
@@ -404,6 +551,7 @@ export function create(userCfg = {}) {
   function setMode(m, silent) {
     mode = m;
     if (m === 'suggest' && !silent) listShown = true;
+    if (m === 'suggest' && pageFirst && isOpen) runSuggest();
     modeBtn.setAttribute('aria-pressed', String(m === 'page'));
     wrap.dataset.mode = m;
     if (m === 'page' && ranges.length && current < 0 && !silent) {
@@ -414,8 +562,26 @@ export function create(userCfg = {}) {
     renderHelp();
     renderCount();
     renderList();
-    if (!silent) announce(m === 'page' ? `${L.mode}. ${countText()}` : `${L.suggestions}. ${sugg.length}`, 150);
+    if (!silent && (m === 'page' || entries)) announce(m === 'page' ? `${L.mode}. ${countText()}` : `${L.suggestions}. ${sugg.length}`, 150); // else announced once loaded
   }
+
+  // ---------- block cursor (F1.10) ----------
+  let caretRaf = 0;
+  function placeCaret() {
+    caretRaf = 0;
+    const pos = input.selectionStart;
+    const show = block && isOpen && root.activeElement === input && pos != null && pos === input.selectionEnd;
+    bcaret.hidden = !show;
+    if (!show) return;
+    const v = input.value;
+    const cs = getComputedStyle(input); // follow any ::part(input) font styling
+    for (const el of [meas, bcaret]) for (const k of ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing']) el.style[k] = cs[k];
+    meas.textContent = v.slice(0, pos);
+    const x = meas.getBoundingClientRect().width;
+    bcaret.textContent = v[pos] || '';
+    bcaret.style.left = `${Math.max(0, Math.min((parseFloat(cs.paddingLeft) || 0) + x - input.scrollLeft, input.clientWidth - bcaret.offsetWidth))}px`;
+  }
+  const moveCaret = guard(() => { if (block && !caretRaf && (!isOpen || root.activeElement === input || !bcaret.hidden)) caretRaf = requestAnimationFrame(guard(placeCaret)); });
 
   // ---------- suggestions (F3) ----------
   function ensurePages() {
@@ -442,16 +608,22 @@ export function create(userCfg = {}) {
     buildList();
   }
 
+  function renderEmpty() { // page-first: say so when Enter found no pages
+    empty.hidden = !(pageFirst && isOpen && mode === 'suggest' && listShown && !sugg.length && entries && input.value.trim());
+  }
+
   function announceState() {
     if (!input.value.trim()) return;
     const m = queryLongEnough() ? (ranges.length ? fmt(L.total, { n: nLabel() }) : L.none) : '';
+    if (pageFirst && mode === 'page') { if (m) announce(fmt(L.announcePage, { m })); return; }
     announce(fmt(L.announce, { m, s: sugg.length }).replace(/^\. /, ''));
   }
 
   const onInput = guard(() => {
     runPage('input');
-    runSuggest();
+    if (!pageFirst || mode === 'suggest') runSuggest();
     announceState();
+    moveCaret();
   });
 
   function go(e, newTab) {
@@ -470,12 +642,18 @@ export function create(userCfg = {}) {
       hint.hidden = true;
       listShown = true;
       dirty = true;
-      setMode('suggest', true);
-      ensurePages();
+      setMode(pageFirst ? 'page' : 'suggest', true);
+      if (!pageFirst) ensurePages(); // page-first: the index loads on the first Enter
       startObserving();
       trackViewport(true);
+      if (marker) {
+        document.addEventListener('scroll', onPageScroll, { capture: true, passive: true });
+        for (const t of ['load', 'toggle', 'transitionend']) document.addEventListener(t, onLayout, true);
+      }
+      if (block) document.addEventListener('selectionchange', moveCaret);
     }
     input.focus({ preventScroll: true });
+    moveCaret();
   }
 
   function close() {
@@ -490,6 +668,11 @@ export function create(userCfg = {}) {
     lastEsc = -1e9;
     pt = null;
     clearHighlights();
+    measureMarks();
+    document.removeEventListener('scroll', onPageScroll, { capture: true });
+    for (const t of ['load', 'toggle', 'transitionend']) document.removeEventListener(t, onLayout, true);
+    document.removeEventListener('selectionchange', moveCaret);
+    clearTimeout(measureTimer);
     buildList();
     renderCount();
     panel.hidden = true;
@@ -507,7 +690,7 @@ export function create(userCfg = {}) {
 
   function onEsc() {
     const now = performance.now();
-    if (!input.value.trim() || now - lastEsc < 500) { close(); return; }
+    if (!input.value.trim() || now - lastEsc < 500 || (pageFirst && mode === 'page')) { close(); return; }
     lastEsc = now;
     setMode(mode === 'suggest' ? 'page' : 'suggest');
   }
@@ -523,12 +706,14 @@ export function create(userCfg = {}) {
   function startObserving() {
     if (mo || typeof MutationObserver !== 'function') return;
     mo = new MutationObserver(guard((muts) => {
-      if (muts.every((m) => m.target === host || host.contains(m.target))) return;
+      muts = muts.filter((m) => m.target !== host && !host.contains(m.target));
+      if (!muts.length) return;
+      if (muts.every((m) => m.type === 'attributes')) { onLayout(); return; } // layout may move, text didn't change
       dirty = true;
       clearTimeout(moTimer);
       moTimer = setTimeout(guard(() => { if (isOpen && queryLongEnough()) runPage('mutation'); }), 150);
     }));
-    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: !!marker });
   }
   function stopObserving() { if (mo) { mo.disconnect(); mo = null; } clearTimeout(moTimer); }
 
@@ -614,7 +799,7 @@ export function create(userCfg = {}) {
       }
       case 'ArrowLeft':
       case 'ArrowRight':
-        if (mod || mode !== 'page' || !hasMatches) return;
+        if (mod || e.shiftKey || mode !== 'page' || !hasMatches) return; // Shift+arrows still select text
         e.preventDefault();
         step(e.key === 'ArrowRight' ? 1 : -1);
         break;
@@ -626,7 +811,12 @@ export function create(userCfg = {}) {
       case 'Enter':
         if (mod) return;
         if (mode === 'suggest' && active >= 0 && sugg[active]) { e.preventDefault(); go(sugg[active], false); }
-        else if (hasMatches) {
+        else if (pageFirst) { // Enter asks for site pages; Enter again opens the first one
+          e.preventDefault();
+          if (mode === 'suggest') { if (sugg[0] && !e.shiftKey) go(sugg[0], false); }
+          else if (e.shiftKey || !maxSugg) step(e.shiftKey ? -1 : 1);
+          else if (input.value.trim()) setMode('suggest');
+        } else if (hasMatches) {
           e.preventDefault();
           if (mode !== 'page') setMode('page');
           else step(e.shiftKey ? -1 : 1);
@@ -657,7 +847,11 @@ export function create(userCfg = {}) {
   // ---------- wire up ----------
   input.addEventListener('input', onInput);
   input.addEventListener('keydown', onInputKey);
-  input.addEventListener('focus', guard(() => { listShown = true; renderList(); }));
+  input.addEventListener('focus', guard(() => { listShown = true; renderList(); moveCaret(); }));
+  for (const t of ['blur', 'keyup', 'pointerup', 'select', 'scroll']) input.addEventListener(t, moveCaret);
+  input.addEventListener('keydown', moveCaret);
+  const onResize = guard(() => { moveCaret(); if (isOpen && marker) remeasure(true); });
+  window.addEventListener('resize', onResize);
   wrap.addEventListener('focusout', guard((e) => {
     if (!e.relatedTarget || !root.contains(e.relatedTarget)) { listShown = false; renderList(); }
   }));
@@ -694,7 +888,7 @@ export function create(userCfg = {}) {
   if (!style) {
     style = document.createElement('style');
     style.setAttribute('data-eyelight', '');
-    style.textContent = HIGHLIGHT_CSS;
+    style.textContent = marker ? MARKER_HIGHLIGHT_CSS : HIGHLIGHT_CSS;
     (document.head || document.documentElement).prepend(style);
   }
 
@@ -726,6 +920,8 @@ export function create(userCfg = {}) {
       if (bodyWatch) bodyWatch.disconnect();
       document.removeEventListener('focusin', checkObscured);
       window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('scroll', onPageScroll, { capture: true });
+      window.removeEventListener('resize', onResize);
       coarse.removeEventListener && coarse.removeEventListener('change', onMq);
       host.remove();
       style.remove();

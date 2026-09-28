@@ -49,3 +49,17 @@ export const waitEscWindow = (page) => page.waitForTimeout(600);
 export async function expectClosed(page) {
   await expect(ui(page).panel).toBeHidden();
 }
+
+/** Restart Eyelight on the fixture page with extra config (e.g. the non-default options). */
+export async function reinit(page, cfg) {
+  await page.evaluate((c) => {
+    window.Eyelight.destroy();
+    window.Eyelight.init({ prompt: 'search', index: '/test/fixtures/site/eyelight-index.json', sitemap: false, ignoreKeys: 'k', ...c });
+  }, cfg);
+}
+
+/** Marker strokes currently drawn in the overlay. */
+export const strokes = (page) => page.evaluate(() => {
+  const r = document.querySelector('eyelight-ui').shadowRoot;
+  return [...r.querySelectorAll('.marks rect')].map((e) => ({ cur: e.getAttribute('class') === 'cur', box: e.getBoundingClientRect().toJSON() }));
+});
