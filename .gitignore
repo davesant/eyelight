@@ -1,0 +1,10 @@
+node_modules/
+test-results/
+playwright-report/
+.DS_Store
+# Build output. Only the script-tag build is committed (jsDelivr serves it from GitHub).
+dist/*
+!dist/minisearch.min.js
+# Generated into the docs site by `npm run build` (the Pages workflow does this on deploy)
+docs/minisearch.min.js
+docs/minisearch-index.json
