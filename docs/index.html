@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Eyelight - type anywhere to search</title>
+<title>Minimarker - type anywhere to search</title>
 <meta name="description" content="A drop-in, open source search box for any website. Highlights matches on the page as you type and suggests other pages on the site.">
 <meta name="keywords" content="demo, quick start, install, site search, find in page">
 <link rel="stylesheet" href="site.css">
@@ -11,20 +11,20 @@
 <body>
 <a class="skip" href="#content">Skip to content</a>
 <header class="top"><div class="in">
-  <a class="brand" href="/eyelight/">eye<span>light</span></a>
+  <a class="brand" href="/minimarker/">eye<span>light</span></a>
   <nav aria-label="Main">
-    <a href="/eyelight/" aria-current="page">Overview</a>
-    <a href="/eyelight/configuration.html">Configuration</a>
-    <a href="/eyelight/search-data.html">Search data</a>
-    <a href="/eyelight/accessibility.html">Accessibility</a>
-    <a href="/eyelight/demo/">Demo site</a>
-    <a href="https://github.com/davesant/eyelight">GitHub</a>
+    <a href="/minimarker/" aria-current="page">Overview</a>
+    <a href="/minimarker/configuration.html">Configuration</a>
+    <a href="/minimarker/search-data.html">Search data</a>
+    <a href="/minimarker/accessibility.html">Accessibility</a>
+    <a href="/minimarker/demo/">Demo site</a>
+    <a href="https://github.com/davesant/minimarker">GitHub</a>
   </nav>
 </div></header>
 
 <main id="content" class="wide">
 <h1>Type anywhere to search</h1>
-<p class="lead">Eyelight is an open source search box that any website can add with one script tag. As you type, it marks matches on the page like a highlighter pen. Press <kbd>Enter</kbd> and it suggests other pages on the site. When you're done, it gets out of the way.</p>
+<p class="lead">Minimarker is an open source search box that any website can add with one script tag. As you type, it marks matches on the page like a highlighter pen. Press <kbd>Enter</kbd> and it suggests other pages on the site. When you're done, it gets out of the way.</p>
 
 <div class="try" id="try">
   <p><strong>This page is the live demo.</strong> Start typing anywhere, for example <kbd>harmonica</kbd>, <kbd>bend</kbd> or <kbd>install</kbd>.</p>
@@ -44,19 +44,19 @@
 <h2 id="quick-start">Quick start</h2>
 <h3 id="install">1. Add the script</h3>
 <p>Put this anywhere in your pages, for example just before <code>&lt;/body&gt;</code>. It's deferred, about 13 KB gzipped, and does nothing until someone starts typing.</p>
-<pre><code>&lt;script src="https://cdn.jsdelivr.net/gh/davesant/eyelight@main/dist/eyelight.min.js"
+<pre><code>&lt;script src="https://cdn.jsdelivr.net/gh/davesant/minimarker@main/dist/minimarker.min.js"
         defer data-prompt="type to search"&gt;&lt;/script&gt;</code></pre>
-<p>You can also self-host <code>dist/eyelight.min.js</code>, or install it from npm as <code>@davesant/eyelight</code> and <code>import { init } from '@davesant/eyelight'</code>.</p>
+<p>You can also self-host <code>dist/minimarker.min.js</code>, or install it from npm as <code>@davesant/minimarker</code> and <code>import { init } from '@davesant/minimarker'</code>.</p>
 
 <h3 id="index">2. Build a search index (for page suggestions)</h3>
-<p>After your site builds, run the index tool over the output folder. It writes <code>eyelight-index.json</code> with each page's title, description, keywords and headings.</p>
-<pre><code>npx -p @davesant/eyelight eyelight-index ./public</code></pre>
-<p>No index? Eyelight falls back to your <code>sitemap.xml</code>, or you can list pages yourself. See <a href="search-data.html">Search data</a>.</p>
+<p>After your site builds, run the index tool over the output folder. It writes <code>minimarker-index.json</code> with each page's title, description, keywords and headings.</p>
+<pre><code>npx -p @davesant/minimarker minimarker-index ./public</code></pre>
+<p>No index? Minimarker falls back to your <code>sitemap.xml</code>, or you can list pages yourself. See <a href="search-data.html">Search data</a>.</p>
 
 <h3 id="scope">3. Optional: choose what's searched</h3>
-<pre><code>&lt;nav data-eyelight-ignore&gt;…&lt;/nav&gt;              &lt;!-- not searched --&gt;
-&lt;div data-eyelight-nocapture&gt;…&lt;/div&gt;         &lt;!-- typing here isn't captured --&gt;</code></pre>
-<p>By default, Eyelight searches the page's <code>&lt;main&gt;</code> element (or the whole body if there isn't one). Every option is listed on the <a href="configuration.html">Configuration</a> page.</p>
+<pre><code>&lt;nav data-minimarker-ignore&gt;…&lt;/nav&gt;              &lt;!-- not searched --&gt;
+&lt;div data-minimarker-nocapture&gt;…&lt;/div&gt;         &lt;!-- typing here isn't captured --&gt;</code></pre>
+<p>By default, Minimarker searches the page's <code>&lt;main&gt;</code> element (or the whole body if there isn't one). Every option is listed on the <a href="configuration.html">Configuration</a> page.</p>
 
 <h2 id="keys">Keyboard reference</h2>
 <div class="tw"><table>
@@ -74,7 +74,7 @@
 <p>Keys are never captured when you're typing in a form field or editable area, when you use Ctrl, Alt or Cmd, or when the site has already handled the key. <kbd>Space</kbd>, <kbd>/</kbd> and <kbd>'</kbd> are never taken from the page, so scrolling, buttons and Firefox's Quick Find keep working.</p>
 
 <h2 id="theme">Light and dark</h2>
-<p>Eyelight follows the system colour scheme by default. Sites with their own theme switch can call <code>Eyelight.setTheme()</code>. Try it:</p>
+<p>Minimarker follows the system colour scheme by default. Sites with their own theme switch can call <code>Minimarker.setTheme()</code>. Try it:</p>
 <div class="controls" role="group" aria-label="Theme">
   <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
   <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
@@ -86,23 +86,23 @@
 <p>Current versions of Chrome, Edge, Firefox and Safari. Marker strokes are drawn in an SVG overlay, so they work everywhere. The flat <code>solid</code> style uses the CSS Custom Highlight API; in older browsers without it, search, match counts and scrolling still work, but matches aren't painted. If the script fails to load, your site simply works as it did before.</p>
 
 <h2 id="licence">Licence</h2>
-<p>MIT. Source, issues and contributions are on <a href="https://github.com/davesant/eyelight">GitHub</a>. <a href="https://miniharp.dev">miniharp.dev</a> is the first site to use it.</p>
+<p>MIT. Source, issues and contributions are on <a href="https://github.com/davesant/minimarker">GitHub</a>. <a href="https://miniharp.dev">miniharp.dev</a> is the first site to use it.</p>
 </main>
 
-<footer class="bot"><div class="in">Eyelight v0.1.0 · MIT licence · <a href="https://github.com/davesant/eyelight">github.com/davesant/eyelight</a></div></footer>
+<footer class="bot"><div class="in">Minimarker v0.1.0 · MIT licence · <a href="https://github.com/davesant/minimarker">github.com/davesant/minimarker</a></div></footer>
 
 <script>
-  // Demo theme switcher: themes the page and Eyelight together.
+  // Demo theme switcher: themes the page and Minimarker together.
   document.querySelectorAll('[data-theme-btn]').forEach(function (b) {
     b.addEventListener('click', function () {
       var t = b.getAttribute('data-theme-btn');
       if (t === 'auto') document.documentElement.removeAttribute('data-theme');
       else document.documentElement.setAttribute('data-theme', t);
-      if (window.Eyelight && Eyelight.setTheme) Eyelight.setTheme(t);
+      if (window.Minimarker && Minimarker.setTheme) Minimarker.setTheme(t);
       document.querySelectorAll('[data-theme-btn]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
     });
   });
 </script>
-<script src="/eyelight/eyelight.min.js" defer data-prompt="type to search" data-index="/eyelight/eyelight-index.json" data-sitemap="false"></script>
+<script src="/minimarker/minimarker.min.js" defer data-prompt="type to search" data-index="/minimarker/minimarker-index.json" data-sitemap="false"></script>
 </body>
 </html>
