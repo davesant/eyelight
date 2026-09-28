@@ -24,26 +24,26 @@
 
 <main id="content" class="wide">
 <h1>Type anywhere to search</h1>
-<p class="lead">Eyelight is an open source search box that any website can add with one script tag. As you type, it highlights matches on the page and suggests other pages on the site. When you're done, it gets out of the way.</p>
+<p class="lead">Eyelight is an open source search box that any website can add with one script tag. As you type, it marks matches on the page like a highlighter pen. Press <kbd>Enter</kbd> and it suggests other pages on the site. When you're done, it gets out of the way.</p>
 
 <div class="try" id="try">
   <p><strong>This page is the live demo.</strong> Start typing anywhere, for example <kbd>harmonica</kbd>, <kbd>bend</kbd> or <kbd>install</kbd>.</p>
-  <p>Press <kbd>Esc</kbd> to jump between matches on this page, and press it twice quickly to close. On a phone, tap the search button in the corner.</p>
+  <p>Use the arrow keys or <kbd>Tab</kbd> to move between matches on this page. Press <kbd>Enter</kbd> to see matching pages on the site, and <kbd>Esc</kbd> to go back or close. On a phone, tap the search button in the corner.</p>
 </div>
 
 <h2 id="features">What it does</h2>
 <div class="grid">
-  <div class="card"><h3>Type anywhere</h3><p>Typing on any page sends the text to a search box at the bottom of the screen. A blinking cursor hints that you can.</p></div>
-  <div class="card"><h3>Highlight on the page</h3><p>From two characters, every match on the page is highlighted. It ignores case and accents, and never changes your HTML.</p></div>
-  <div class="card"><h3>Suggest pages</h3><p>Pages and sections from the same site are suggested as you type. The data comes from a small static index.</p></div>
-  <div class="card"><h3>Keyboard first</h3><p>Move through matches with the arrow keys or Tab. <kbd>Esc</kbd> switches between page matches and site suggestions.</p></div>
+  <div class="card"><h3>Type anywhere</h3><p>Typing on any page sends the text to a search box at the bottom left of the screen. A blinking block cursor hints that you can.</p></div>
+  <div class="card"><h3>Highlight on the page</h3><p>From two characters, every match on the page is marked with a highlighter-pen stroke. It ignores case and accents, and never changes your HTML.</p></div>
+  <div class="card"><h3>Suggest pages</h3><p>Press <kbd>Enter</kbd> to see pages and sections from the same site. The data comes from a small static index.</p></div>
+  <div class="card"><h3>Keyboard first</h3><p>Move through matches with the arrow keys or Tab. <kbd>Enter</kbd> shows site pages and <kbd>Esc</kbd> steps back. Prefer suggestions as you type, a centred bar or a flat highlight? <a href="configuration.html">Each is an option</a>.</p></div>
   <div class="card"><h3>Works on phones</h3><p>On touch screens, a floating button opens the same search, with large buttons for moving between matches.</p></div>
   <div class="card"><h3>Accessible and polite</h3><p>Built to WCAG 2.2 AA. Users can turn type-to-search off. It respects reduced motion and never traps focus.</p></div>
 </div>
 
 <h2 id="quick-start">Quick start</h2>
 <h3 id="install">1. Add the script</h3>
-<p>Put this anywhere in your pages, for example just before <code>&lt;/body&gt;</code>. It's deferred, about 10 KB gzipped, and does nothing until someone starts typing.</p>
+<p>Put this anywhere in your pages, for example just before <code>&lt;/body&gt;</code>. It's deferred, about 13 KB gzipped, and does nothing until someone starts typing.</p>
 <pre><code>&lt;script src="https://cdn.jsdelivr.net/gh/davesant/eyelight@main/dist/eyelight.min.js"
         defer data-prompt="type to search"&gt;&lt;/script&gt;</code></pre>
 <p>You can also self-host <code>dist/eyelight.min.js</code>, or install it from npm as <code>@davesant/eyelight</code> and <code>import { init } from '@davesant/eyelight'</code>.</p>
@@ -60,17 +60,17 @@
 
 <h2 id="keys">Keyboard reference</h2>
 <div class="tw"><table>
-  <thead><tr><th scope="col">Key</th><th scope="col">Site suggestions</th><th scope="col">In-page matches</th></tr></thead>
+  <thead><tr><th scope="col">Key</th><th scope="col">In-page matches (where search starts)</th><th scope="col">Site pages</th></tr></thead>
   <tbody>
     <tr><td>Any letter or number</td><td colspan="2">Opens search, or adds to the search text</td></tr>
-    <tr><td><kbd>↓</kbd> <kbd>↑</kbd></td><td>Move through suggestions</td><td>Next or previous match</td></tr>
-    <tr><td><kbd>→</kbd> <kbd>←</kbd></td><td>Move the text cursor</td><td>Next or previous match</td></tr>
-    <tr><td><kbd>Tab</kbd> <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Move focus as normal</td><td>Next or previous match</td></tr>
-    <tr><td><kbd>Enter</kbd></td><td>Open the selected page, or go to page matches</td><td>Next match (<kbd>Shift</kbd>+<kbd>Enter</kbd>: previous)</td></tr>
-    <tr><td><kbd>Esc</kbd></td><td>Switch to in-page matches</td><td>Switch to site suggestions</td></tr>
-    <tr><td><kbd>Esc</kbd> <kbd>Esc</kbd> (quickly)</td><td colspan="2">Close search and remove the highlights</td></tr>
+    <tr><td><kbd>↓</kbd> <kbd>↑</kbd></td><td>Next or previous match</td><td>Move through suggestions</td></tr>
+    <tr><td><kbd>→</kbd> <kbd>←</kbd></td><td>Next or previous match</td><td>Move the text cursor</td></tr>
+    <tr><td><kbd>Tab</kbd> <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Next or previous match</td><td>Move focus as normal</td></tr>
+    <tr><td><kbd>Enter</kbd></td><td>Show matching site pages (<kbd>Shift</kbd>+<kbd>Enter</kbd>: previous match)</td><td>Open the selected page, or the first one</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Close search and remove the highlights</td><td>Back to in-page matches</td></tr>
   </tbody>
 </table></div>
+<p>With <code>startMode: 'suggest'</code>, suggestions show as you type instead, <kbd>Esc</kbd> switches between the two, <kbd>Enter</kbd> moves to the next match, and a quick <kbd>Esc</kbd> <kbd>Esc</kbd> closes.</p>
 <p>Keys are never captured when you're typing in a form field or editable area, when you use Ctrl, Alt or Cmd, or when the site has already handled the key. <kbd>Space</kbd>, <kbd>/</kbd> and <kbd>'</kbd> are never taken from the page, so scrolling, buttons and Firefox's Quick Find keep working.</p>
 
 <h2 id="theme">Light and dark</h2>
@@ -83,7 +83,7 @@
 <p>You can also change colours, corner radius, fonts and more with CSS custom properties. See the <a href="demo/custom-theme.html">custom theme demo</a>.</p>
 
 <h2 id="browsers">Browser support</h2>
-<p>Current versions of Chrome, Edge, Firefox and Safari. Highlighting uses the CSS Custom Highlight API. In older browsers without it, search, match counts and scrolling still work, but matches aren't painted. If the script fails to load, your site simply works as it did before.</p>
+<p>Current versions of Chrome, Edge, Firefox and Safari. Marker strokes are drawn in an SVG overlay, so they work everywhere. The flat <code>solid</code> style uses the CSS Custom Highlight API; in older browsers without it, search, match counts and scrolling still work, but matches aren't painted. If the script fails to load, your site simply works as it did before.</p>
 
 <h2 id="licence">Licence</h2>
 <p>MIT. Source, issues and contributions are on <a href="https://github.com/davesant/eyelight">GitHub</a>. <a href="https://miniharp.dev">miniharp.dev</a> is the first site to use it.</p>

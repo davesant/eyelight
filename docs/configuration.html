@@ -49,7 +49,10 @@
 <tr><td><code>sitemap</code></td><td><code>data-sitemap</code></td><td><code>/sitemap.xml</code></td><td>Fallback if the index can't be loaded. Use <code>false</code> to skip it.</td></tr>
 <tr><td><code>pages</code></td><td>-</td><td><code>null</code></td><td>Your own list of pages, <code>[{url, title, description, keywords, headings}]</code>. It's always merged in with the other sources.</td></tr>
 <tr><td><code>theme</code></td><td><code>data-theme</code></td><td><code>auto</code></td><td><code>auto</code>, <code>light</code> or <code>dark</code>.</td></tr>
-<tr><td><code>position</code></td><td><code>data-position</code></td><td><code>center</code></td><td>Where the idle cursor sits: <code>center</code>, <code>left</code> or <code>right</code>.</td></tr>
+<tr><td><code>position</code></td><td><code>data-position</code></td><td><code>left</code></td><td>Where the idle cursor and the open search bar sit along the bottom of the screen: <code>left</code>, <code>center</code> or <code>right</code>.</td></tr>
+<tr><td><code>startMode</code></td><td><code>data-start-mode</code></td><td><code>page</code></td><td><code>page</code>: typing searches this page only, and <kbd>Enter</kbd> shows matching pages on the site. <code>suggest</code>: site suggestions appear as you type, and <kbd>Esc</kbd> switches to page matches.</td></tr>
+<tr><td><code>caret</code></td><td><code>data-caret</code></td><td><code>block</code></td><td><code>block</code>: a terminal-style block cursor, both idle and in the box. <code>bar</code>: a thin line, and the browser's own text cursor in the box.</td></tr>
+<tr><td><code>highlight</code></td><td><code>data-highlight</code></td><td><code>marker</code></td><td><code>marker</code>: matches look like they've been marked with a highlighter pen. <code>solid</code>: flat highlight colours (see <a href="#highlights">highlight colours</a>).</td></tr>
 <tr><td><code>minChars</code></td><td><code>data-min-chars</code></td><td><code>2</code></td><td>How many characters are needed before page matches are highlighted.</td></tr>
 <tr><td><code>maxSuggestions</code></td><td><code>data-max-suggestions</code></td><td><code>8</code></td><td>The most page suggestions to show. <code>0</code> turns suggestions off.</td></tr>
 <tr><td><code>ignoreKeys</code></td><td><code>data-ignore-keys</code></td><td><code>""</code></td><td>Keys that are never captured, e.g. <code>"j,k,?"</code>. It's usually better to call <code>preventDefault()</code> in your own shortcut handlers, because Eyelight ignores any key you've already handled.</td></tr>
@@ -65,7 +68,10 @@
 <p>You can override any of these in <code>labels</code>. <code>{n}</code>, <code>{i}</code>, <code>{m}</code> and <code>{s}</code> are placeholders.</p>
 <pre><code>hint, hintOff, input, suggestions, prev, next, mode, close,
 captureOn, captureOff, helpSuggest, helpPage, helpTouch,
-total ("{n} on page"), position ("{i} of {n}"), none, announce, closed</code></pre>
+total ("{n} on page"), position ("{i} of {n}"), none, noPages,
+announce ("{m} on this page. {s} pages suggested."),
+announcePage ("{m} on this page."), closed</code></pre>
+<p>The default <code>helpSuggest</code> and <code>helpPage</code> text depends on <code>startMode</code>.</p>
 
 <h2 id="api">JavaScript API</h2>
 <div class="tw"><table>
@@ -93,16 +99,19 @@ total ("{n} on page"), position ("{i} of {n}"), none, announce, closed</code></p
   --eyelight-radius: 4px;      --eyelight-font: Georgia, serif;
   --eyelight-width: 36rem;     --eyelight-gap: 20px;
   --eyelight-shadow: none;     --eyelight-z: 1000;
+  --eyelight-marker: #9be37a;  --eyelight-marker-current: #ffc233;
+  --eyelight-marker-blend: multiply;
 }
 /* Match your own dark mode switch */
 html.dark eyelight-ui { --eyelight-bg: #1b1612; --eyelight-fg: #f3e9dc; /* … */ }</code></pre>
 <p>If you change colours, check that text still has at least 4.5:1 contrast against the background.</p>
 
 <h3 id="parts">2. Parts</h3>
-<p>For anything else, these parts can be styled with <code>eyelight-ui::part(name)</code>: <code>hint</code>, <code>caret</code>, <code>prompt</code>, <code>panel</code>, <code>suggestions</code>, <code>suggestion</code>, <code>bar</code>, <code>input</code>, <code>count</code>, <code>button</code>, <code>footer</code>.</p>
+<p>For anything else, these parts can be styled with <code>eyelight-ui::part(name)</code>: <code>hint</code>, <code>caret</code> (idle cursor), <code>cursor</code> (block cursor in the box), <code>prompt</code>, <code>panel</code>, <code>suggestions</code>, <code>suggestion</code>, <code>empty</code>, <code>bar</code>, <code>input</code>, <code>count</code>, <code>button</code>, <code>footer</code>, <code>marks</code> (the marker overlay).</p>
 
 <h3 id="highlights">3. Highlight colours</h3>
-<p>Matches on the page are painted with the CSS Custom Highlight API. Your own rules win over the defaults:</p>
+<p>With the default <code>highlight: 'marker'</code>, matches are drawn as marker strokes in an overlay, and your page's HTML is never changed. Set the colours with <code>--eyelight-marker</code> and <code>--eyelight-marker-current</code> (see above). Eyelight looks at your page's background colour: on light pages the strokes are multiplied onto the page so dark text shows through, and on dark pages they use screen blending with darker marker colours so light text stays readable. To set the dark-page colours yourself, style <code>eyelight-ui[data-page=dark]</code>.</p>
+<p>With <code>highlight: 'solid'</code>, matches are painted with the CSS Custom Highlight API. Your own rules win over the defaults:</p>
 <pre><code>::highlight(eyelight)         { background-color: #c7f0d8; color: #000; }
 ::highlight(eyelight-current) { background-color: #1a7f4b; color: #fff; }</code></pre>
 <p>In Windows high contrast mode, the system Mark and Highlight colours are used automatically.</p>

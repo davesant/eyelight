@@ -39,7 +39,7 @@
 <p class="try" data-eyelight-ignore>This is a made-up demo site for trying Eyelight. Type anywhere, for example <kbd>reed</kbd>, <kbd>bend</kbd> or <kbd>tuning</kbd>.</p>
 
 <h1>Custom theme</h1>
-<p class="lead">This page restyles Eyelight to match a warm, bookish site. The idle hint is on the left, and the prompt says "find". Type <kbd>reed</kbd> or <kbd>bend</kbd> to see it.</p>
+<p class="lead">This page restyles Eyelight to match a warm, bookish site, and switches every default: the bar is centred, suggestions show as you type, the cursor is a thin line and matches get flat highlight colours. The prompt says "find". Type <kbd>reed</kbd> or <kbd>bend</kbd> to see it.</p>
 <h2 id="how">How it's done</h2>
 <p>The component lives in a shadow root, so none of the site's styles can break it. Instead, it exposes CSS custom properties, parts and highlight names. This page uses all three:</p>
 <pre><code>eyelight-ui {
@@ -50,12 +50,13 @@
 eyelight-ui::part(hint) { border-width: 2px; font-style: italic; }
 ::highlight(eyelight)         { background-color: #c7f0d8; color: #000; }
 ::highlight(eyelight-current) { background-color: #1a7f4b; color: #fff; }</code></pre>
-<p>The script tag sets the prompt and position:</p>
-<pre><code>&lt;script src="eyelight.min.js" defer data-prompt="find" data-position="left"&gt;&lt;/script&gt;</code></pre>
+<p>The script tag sets the prompt and switches the defaults:</p>
+<pre><code>&lt;script src="eyelight.min.js" defer data-prompt="find" data-position="center"
+        data-start-mode="suggest" data-caret="bar" data-highlight="solid"&gt;&lt;/script&gt;</code></pre>
 <h2 id="reeds">Some text to search</h2>
 <p>Every reed in a harmonica is a thin brass tongue riveted over a slot. When air flows, the reed swings through the slot and back, and that vibration is the note you hear. Bend a note and you change how the blow reed and draw reed share the airflow.</p>
 </main>
 <footer class="bot"><div class="in">A demo site for <a href="/eyelight/">Eyelight</a>. The club is fictional.</div></footer>
-<script src="/eyelight/eyelight.min.js" defer data-prompt="find" data-position="left" data-index="/eyelight/eyelight-index.json" data-sitemap="false" data-theme="light"></script>
+<script src="/eyelight/eyelight.min.js" defer data-prompt="find" data-position="center" data-start-mode="suggest" data-caret="bar" data-highlight="solid" data-index="/eyelight/eyelight-index.json" data-sitemap="false" data-theme="light"></script>
 </body>
 </html>
