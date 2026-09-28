@@ -1,0 +1,39 @@
+{
+  "name": "@davesant/minisearch",
+  "version": "0.1.0",
+  "description": "Drop-in, type-anywhere search for any website: in-page highlight search plus site-wide page suggestions. No framework, works on static sites.",
+  "keywords": ["search", "site-search", "find-in-page", "static-site", "highlight", "type-to-search", "accessibility", "web-component"],
+  "homepage": "https://davesant.github.io/minisearch/",
+  "repository": { "type": "git", "url": "git+https://github.com/davesant/minisearch.git" },
+  "bugs": "https://github.com/davesant/minisearch/issues",
+  "license": "MIT",
+  "author": "davesant",
+  "type": "module",
+  "main": "./dist/minisearch.esm.js",
+  "module": "./dist/minisearch.esm.js",
+  "browser": "./dist/minisearch.min.js",
+  "unpkg": "./dist/minisearch.min.js",
+  "jsdelivr": "./dist/minisearch.min.js",
+  "exports": {
+    ".": "./dist/minisearch.esm.js",
+    "./auto": "./dist/minisearch.min.js",
+    "./build-index": "./lib/build-index.js",
+    "./package.json": "./package.json"
+  },
+  "bin": { "minisearch-index": "bin/minisearch-index.js" },
+  "files": ["dist", "lib", "bin", "README.md", "LICENSE"],
+  "sideEffects": ["./dist/minisearch.min.js"],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "npm run build && node --test test/unit/*.test.js && playwright test",
+    "test:unit": "node --test test/unit/*.test.js",
+    "test:e2e": "playwright test",
+    "serve": "node scripts/serve.js docs 8080 /minisearch/",
+    "prepublishOnly": "npm test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0",
+    "esbuild": "^0.27.7"
+  },
+  "engines": { "node": ">=18" }
+}
