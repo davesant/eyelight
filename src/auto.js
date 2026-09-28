@@ -1,9 +1,9 @@
 // Script-tag entry point. Reads config from the <script> tag's data-*
-// attributes and window.minisearchConfig, then initialises (NF1).
+// attributes and window.eyelightConfig, then initialises (NF1).
 //
-//   <script src="minisearch.min.js" defer data-prompt="search"></script>
+//   <script src="eyelight.min.js" defer data-prompt="search"></script>
 
-import { init, VERSION } from './minisearch.js';
+import { init, VERSION } from './eyelight.js';
 
 const script = document.currentScript;
 
@@ -35,17 +35,17 @@ function fromDataset(ds) {
 function start() {
   try {
     const ds = (script && script.dataset) || {};
-    if (ds.manual !== undefined) return; // host will call Minisearch.init() itself
-    const cfg = { ...(window.minisearchConfig || {}), ...fromDataset(ds) };
+    if (ds.manual !== undefined) return; // host will call Eyelight.init() itself
+    const cfg = { ...(window.eyelightConfig || {}), ...fromDataset(ds) };
     init(cfg);
   } catch (e) {
-    try { console.warn('[minisearch]', e); } catch { /* ignore */ }
+    try { console.warn('[eyelight]', e); } catch { /* ignore */ }
   }
 }
 
 try {
-  // Placeholder so `Minisearch.init()` works in manual mode; replaced by the live API on init.
-  if (!window.Minisearch) window.Minisearch = { init, version: VERSION };
+  // Placeholder so `Eyelight.init()` works in manual mode; replaced by the live API on init.
+  if (!window.Eyelight) window.Eyelight = { init, version: VERSION };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else start();
 } catch { /* never break the host page */ }

@@ -21,8 +21,8 @@ export default defineConfig({
   use: { baseURL: 'http://localhost:4173' },
   webServer: [
     { command: 'node scripts/serve.js . 4173', url: 'http://localhost:4173/test/fixtures/site/', reuseExistingServer: !process.env.CI },
-    // The docs site, mounted at /minisearch/ like GitHub Pages
-    { command: 'node scripts/serve.js docs 4174 /minisearch/', url: 'http://localhost:4174/minisearch/', reuseExistingServer: !process.env.CI },
+    // The docs site, mounted at /eyelight/ like GitHub Pages
+    { command: 'node scripts/serve.js docs 4174 /eyelight/', url: 'http://localhost:4174/eyelight/', reuseExistingServer: !process.env.CI },
   ],
   projects,
 });

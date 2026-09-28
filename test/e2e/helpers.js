@@ -6,12 +6,12 @@ export async function load(page, url = HOME) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e));
   await page.goto(url);
-  await page.waitForFunction(() => window.Minisearch && window.Minisearch.element);
+  await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
   return errors;
 }
 
 export const ui = (page) => {
-  const host = page.locator('minisearch-ui');
+  const host = page.locator('eyelight-ui');
   return {
     host,
     hint: host.locator('.hint'),
@@ -29,14 +29,14 @@ export const ui = (page) => {
   };
 };
 
-export const hlCount = (page) => page.evaluate(() => (CSS.highlights.get('minisearch') || { size: 0 }).size);
+export const hlCount = (page) => page.evaluate(() => (CSS.highlights.get('eyelight') || { size: 0 }).size);
 export const currentText = (page) => page.evaluate(() => {
-  const h = CSS.highlights.get('minisearch-current');
+  const h = CSS.highlights.get('eyelight-current');
   return h ? [...h][0].toString() : null;
 });
 export const focusedIsInput = (page) => page.evaluate(() => {
   const a = document.activeElement;
-  return !!(a && a.tagName === 'MINISEARCH-UI' && a.shadowRoot.activeElement && a.shadowRoot.activeElement.tagName === 'INPUT');
+  return !!(a && a.tagName === 'EYELIGHT-UI' && a.shadowRoot.activeElement && a.shadowRoot.activeElement.tagName === 'INPUT');
 });
 
 export async function typeOnPage(page, text) {
