@@ -307,14 +307,22 @@ test.describe('F4 in-page navigation', () => {
   });
 
   test('F4.4 reduced motion scrolls instantly', async ({ page }) => {
+    // Record the behaviour Minisearch asks for, rather than timing the scroll (which is flaky).
+    await page.evaluate(() => {
+      window.scrollCalls = [];
+      const orig = window.scrollBy.bind(window);
+      window.scrollBy = (...a) => { window.scrollCalls.push(a[0] && a[0].behavior); return orig(...a); };
+    });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.keyboard.type('farword');
     await page.keyboard.press('Escape');
-    const y1 = await page.evaluate(() => window.scrollY);
-    await page.waitForTimeout(700);
-    const y2 = await page.evaluate(() => window.scrollY);
-    expect(y1).toBeGreaterThan(0);
-    expect(y2).toBe(y1);
+    await expect.poll(() => page.evaluate(() => window.scrollCalls)).toContain('instant');
+    expect(await page.evaluate(() => window.scrollCalls)).not.toContain('smooth');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.keyboard.press('ArrowUp'); // wraps to the same single match, which is already in view
+    await page.evaluate(() => { window.scrollCalls = []; window.scrollTo(0, 0); });
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => page.evaluate(() => window.scrollCalls)).toContain('smooth');
   });
 
   test('F4.6 typing keeps updating results in in-page mode', async ({ page }) => {
@@ -422,16 +430,24 @@ test.describe('NF accessibility and robustness', () => {
 
   test('NF6.4 Tab moves focus normally unless navigating matches', async ({ page }) => {
     const u = ui(page);
+    const activeId = () => page.evaluate(() => document.activeElement && document.activeElement.id);
     await page.keyboard.type('zzqq');
     await page.keyboard.press('Tab');
     expect(await focusedIsInput(page)).toBe(false);
     await u.input.focus();
-    await page.keyboard.press('Escape'); // page mode, but no matches
+    await page.keyboard.press('Escape'); // page mode, but no matches: Tab is not intercepted
+    await page.keyboard.press('Shift+Tab');
+    expect(await activeId()).toBe('lastbtn'); // left the component for the page
+    // With matches, Tab steps through them; Esc returns to normal Tab behaviour
+    await u.input.fill('harmonica');
+    await expect(u.mode).toHaveAttribute('aria-pressed', 'true'); // still in page mode
     await page.keyboard.press('Tab');
-    expect(await focusedIsInput(page)).toBe(false);
-    // Tabbing all the way through leaves the component
-    for (let i = 0; i < 8; i++) await page.keyboard.press('Tab');
-    expect(await page.evaluate(() => document.activeElement && document.activeElement.tagName)).not.toBe('MINISEARCH-UI');
+    await expect(u.count).toHaveText(/of 4/);
+    await waitEscWindow(page);
+    await page.keyboard.press('Escape');
+    await expect(u.mode).toHaveAttribute('aria-pressed', 'false');
+    await page.keyboard.press('Shift+Tab');
+    expect(await activeId()).toBe('lastbtn');
   });
 
   test('NF6.5 combobox, listbox and live region semantics', async ({ page }) => {

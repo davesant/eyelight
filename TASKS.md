@@ -2,10 +2,8 @@
 
 ## Needs Dave
 
-- [ ] **Turn on GitHub Pages.** Go to Settings > Pages > Build and deployment > Deploy from a branch > `main` / `/docs`. The docs will then be live at https://davesant.github.io/minisearch/.
 - [ ] **Publish to npm.** Run `npm login`, then `npm publish --access public` (package `@davesant/minisearch`). The build environment used so far couldn't reach the npm registry.
 - [ ] **Tag v0.1.0** (create a GitHub release). Then switch the CDN URL in the README and `docs/index.html` from `@main` to `@v0.1`, because `@main` is cached by jsDelivr for up to 12 hours and changes without warning.
-- [ ] **Check the first CI run** in Actions, especially Firefox and WebKit, which haven't been run locally yet.
 
 ## Before v1.0
 
@@ -17,3 +15,8 @@
 - [ ] Consider showing a "no matching pages" row when the index loads but nothing matches (currently the list just hides and the live region says "0 pages suggested").
 - [ ] Add an axe-core automated check to the e2e suite (couldn't be installed in the first build environment; contrast is checked by a unit test instead).
 - [ ] Add a `package-lock.json` once `npm install` has been run with registry access, and switch CI to `npm ci`.
+
+## Done
+
+- [x] GitHub Pages turned on - docs live at https://davesant.github.io/minisearch/ (2026-09-28)
+- [x] CI switched on in `.github/workflows/ci.yml`; first runs checked and two browser-specific test issues fixed (2026-09-28)
