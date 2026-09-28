@@ -3,7 +3,6 @@
 ## Needs Dave
 
 - [ ] **Turn on GitHub Pages.** Go to Settings > Pages > Build and deployment > Deploy from a branch > `main` / `/docs`. The docs will then be live at https://davesant.github.io/minisearch/.
-- [ ] **Switch on CI.** Move `ci/ci.yml` to `.github/workflows/ci.yml`, using GitHub's web editor or a local git push (the connector's token can't write workflow files).
 - [ ] **Publish to npm.** Run `npm login`, then `npm publish --access public` (package `@davesant/minisearch`). The build environment used so far couldn't reach the npm registry.
 - [ ] **Tag v0.1.0** (create a GitHub release). Then switch the CDN URL in the README and `docs/index.html` from `@main` to `@v0.1`, because `@main` is cached by jsDelivr for up to 12 hours and changes without warning.
 - [ ] **Check the first CI run** in Actions, especially Firefox and WebKit, which haven't been run locally yet.

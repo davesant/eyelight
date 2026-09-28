@@ -33,7 +33,7 @@ If there's no index, Minisearch falls back to `sitemap.xml`, or to a list of pag
 | `test/e2e/` | Playwright tests, named by SPEC requirement ID. |
 | `test/fixtures/site/` | Fixture pages used by the e2e tests. |
 | `scripts/` | `build.js` (esbuild bundle, docs copy, docs index, 12 KB gzip budget) and `serve.js` (static server). |
-| `ci/ci.yml` | GitHub Actions test workflow, waiting to be moved into `.github/workflows/`. |
+| `.github/workflows/ci.yml` | GitHub Actions: runs all tests in Chromium, Firefox and WebKit on every push and pull request. |
 | `SPEC.md`, `VERIFICATION.md`, `TASKS.md`, `AGENTS.md` | Spec, requirement-by-requirement evidence, open tasks, agent rules. |
 
 ## Develop
@@ -51,7 +51,7 @@ npm run serve        # docs at http://localhost:8080/minisearch/
 - **Docs and demo:** GitHub Pages serves the `docs/` folder on `main` (Settings > Pages > Deploy from a branch > `main` / `/docs`). Only `docs/` is public, so the repo notes aren't deployed. Run `npm run build` before committing, so the docs copy of the script and the docs index are current.
 - **CDN:** jsDelivr serves `dist/minisearch.min.js` straight from GitHub (`@main`, or a tag such as `@v0.1.0` once tagged).
 - **npm:** `npm publish --access public` publishes `@davesant/minisearch`. `prepublishOnly` runs the tests first.
-- **CI:** `ci/ci.yml` runs all tests in Chromium, Firefox and WebKit. It becomes active once it's moved to `.github/workflows/ci.yml` (see TASKS.md).
+- **CI:** `.github/workflows/ci.yml` runs all tests in Chromium, Firefox and WebKit on every push to `main` and every pull request.
 
 ## Licence
 
