@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search data - Minisearch</title>
+<meta name="description" content="Where Minisearch gets its page suggestions: a build-time index, your sitemap, or a list you provide.">
+<meta name="keywords" content="index, cli, sitemap, static site, eleventy, hugo, astro, jekyll, json">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="top"><div class="in">
+  <a class="brand" href="/minisearch/">mini<span>search</span></a>
+  <nav aria-label="Main">
+    <a href="/minisearch/">Overview</a>
+    <a href="/minisearch/configuration.html">Configuration</a>
+    <a href="/minisearch/search-data.html" aria-current="page">Search data</a>
+    <a href="/minisearch/accessibility.html">Accessibility</a>
+    <a href="/minisearch/demo/">Demo site</a>
+    <a href="https://github.com/davesant/minisearch">GitHub</a>
+  </nav>
+</div></header>
+
+<main id="content">
+<h1>Search data</h1>
+<p class="lead">Highlighting on the current page needs no setup at all. Page suggestions need a list of your site's pages. Minisearch can get that list in three ways, and all of them work on static sites.</p>
+
+<div class="tw"><table>
+<thead><tr><th scope="col">Source</th><th scope="col">Quality</th><th scope="col">Setup</th></tr></thead>
+<tbody>
+<tr><td><strong>Build-time index</strong> (recommended)</td><td>Titles, descriptions, keywords and headings. Sections with ids are suggested on their own.</td><td>Run one command after each build.</td></tr>
+<tr><td><strong>sitemap.xml</strong> (automatic fallback)</td><td>URLs only. Titles are made from the URL, e.g. <code>/guide/getting-started/</code> becomes "Getting started".</td><td>None, if you already have a sitemap.</td></tr>
+<tr><td><strong>Your own list</strong></td><td>Whatever you provide.</td><td>Add <code>pages</code> to the config.</td></tr>
+</tbody></table></div>
+<p>Minisearch tries the index first, and falls back to the sitemap if the index is missing. Your own list is always added on top. Nothing is downloaded until someone starts searching, so page loads aren't affected.</p>
+
+<h2 id="cli">The index tool</h2>
+<pre><code>npx -p @davesant/minisearch minisearch-index &lt;folder&gt; [options]
+
+  --out, -o &lt;file&gt;   output file (default: &lt;folder&gt;/minisearch-index.json)
+  --base &lt;path&gt;      URL prefix the folder is served from (default: /)
+  --exclude &lt;glob&gt;   skip matching files, relative to folder (repeatable; default 404.html)
+  --clean-urls       write /about instead of /about.html
+  --levels 1,2,3     heading levels to index (default 1,2,3)</code></pre>
+<p>The tool reads every <code>.html</code> file in the folder, and <code>folder/index.html</code> becomes <code>/folder/</code>. For each page, it records:</p>
+<ul>
+  <li>the <code>&lt;title&gt;</code></li>
+  <li><code>meta description</code> and <code>keywords</code></li>
+  <li>h1 to h3 headings, with their ids</li>
+</ul>
+<p>It skips <code>&lt;nav&gt;</code>, <code>&lt;footer&gt;</code>, scripts and anything marked <code>data-minisearch-ignore</code>. It has no dependencies and needs Node 18 or later.</p>
+
+<h3 id="optout">Leaving pages out</h3>
+<p>Pages with <code>&lt;meta name="robots" content="noindex"&gt;</code> or <code>&lt;meta name="minisearch" content="noindex"&gt;</code> are skipped.</p>
+
+<h3 id="ssg">With a static site generator</h3>
+<p>Run the tool after the build, over the output folder:</p>
+<pre><code>// package.json
+"scripts": {
+  "build": "eleventy &amp;&amp; minisearch-index _site"          // Eleventy
+  // "build": "hugo &amp;&amp; minisearch-index public"            // Hugo
+  // "build": "astro build &amp;&amp; minisearch-index dist"       // Astro
+  // "build": "jekyll build &amp;&amp; minisearch-index _site"     // Jekyll
+}</code></pre>
+<p>Or call it from code: <code>import { buildIndex } from '@davesant/minisearch/build-index'</code>.</p>
+
+<h3 id="subpath">Sites served from a sub-folder</h3>
+<p>If your site lives at <code>example.com/docs/</code>, pass <code>--base /docs/</code> to the tool, and point the script at the index:</p>
+<pre><code>&lt;script src="…/minisearch.min.js" defer data-index="/docs/minisearch-index.json"&gt;&lt;/script&gt;</code></pre>
+
+<h2 id="format">Index format</h2>
+<p>If you'd rather generate the file yourself, for example from a CMS, write JSON in this shape. Only <code>url</code> is required. Only same-origin URLs are used.</p>
+<pre><code>{
+  "version": 1,
+  "pages": [
+    {
+      "url": "/guide/tuning.html",
+      "title": "Tuning your harmonica",
+      "description": "How to tune reeds and keep them in tune",
+      "keywords": ["reeds", "pitch"],
+      "headings": [{ "text": "Flattening a reed", "id": "flatten", "level": 2 }]
+    }
+  ]
+}</code></pre>
+<p>You can pass the same array inline as <code>window.minisearchConfig = { pages: [...] }</code>.</p>
+
+<h2 id="ranking">How suggestions are ranked</h2>
+<p>Each word you type has to match the start of a word in the page's title, keywords, headings, description or URL. Accents and case are ignored. Title matches count most, then keywords, headings, description and URL. A heading with an id is suggested as its own result only when the heading itself matches. At most two sections are shown per page.</p>
+</main>
+
+<footer class="bot"><div class="in">Minisearch v0.1.0 · MIT licence · <a href="https://github.com/davesant/minisearch">github.com/davesant/minisearch</a></div></footer>
+<script src="/minisearch/minisearch.min.js" defer data-prompt="type to search" data-index="/minisearch/minisearch-index.json" data-sitemap="false"></script>
+</body>
+</html>

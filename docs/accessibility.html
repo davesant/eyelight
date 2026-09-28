@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility - Minisearch</title>
+<meta name="description" content="How Minisearch meets WCAG 2.2 AA, including character key shortcuts, screen readers, input methods and focus.">
+<meta name="keywords" content="wcag, a11y, screen reader, keyboard, reduced motion, character key shortcuts, 2.1.4">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="top"><div class="in">
+  <a class="brand" href="/minisearch/">mini<span>search</span></a>
+  <nav aria-label="Main">
+    <a href="/minisearch/">Overview</a>
+    <a href="/minisearch/configuration.html">Configuration</a>
+    <a href="/minisearch/search-data.html">Search data</a>
+    <a href="/minisearch/accessibility.html" aria-current="page">Accessibility</a>
+    <a href="/minisearch/demo/">Demo site</a>
+    <a href="https://github.com/davesant/minisearch">GitHub</a>
+  </nav>
+</div></header>
+
+<main id="content">
+<h1>Accessibility</h1>
+<p class="lead">Minisearch is designed to meet WCAG 2.2 level AA, and to stay out of the way of assistive technology and of the host site.</p>
+
+<h2 id="shortcuts">Turning type-to-search off (WCAG 2.1.4)</h2>
+<p>Type-anywhere is a single-character keyboard shortcut, so users must be able to turn it off. The open search bar has a <strong>Type-to-search: on/off</strong> button, and the choice is remembered in the browser. With capture off, the idle hint becomes a plain "Search" button. Sites can also turn capture off for everyone with <code>data-capture="false"</code>.</p>
+
+<h2 id="criteria">How each area is handled</h2>
+<div class="tw"><table>
+<thead><tr><th scope="col">Area</th><th scope="col">What Minisearch does</th></tr></thead>
+<tbody>
+<tr><td>Screen readers</td><td>The search box is an ARIA combobox with a listbox of suggestions. Match and suggestion counts are announced through a polite live region. In browse mode, screen readers handle keys themselves, so they never reach the page. Highlights don't change the page's DOM, so reading order and the accessibility tree are unchanged.</td></tr>
+<tr><td>Browser find-in-page</td><td>Shortcuts that use Ctrl or Cmd are never captured. <kbd>/</kbd> and <kbd>'</kbd> are never taken from the page, so Firefox's Quick Find still works.</td></tr>
+<tr><td>Input methods (IME)</td><td>Composition keys are ignored. Once the box is open, typing goes into a real text input, so IME, dead keys, paste and undo all work normally.</td></tr>
+<tr><td>Host keyboard shortcuts</td><td>Keys the site has already handled with <code>preventDefault()</code> are ignored. Sites can also list keys in <code>ignoreKeys</code>. Keys typed in the search box don't reach the site's own shortcut handlers.</td></tr>
+<tr><td>Form fields and widgets</td><td>Nothing is captured in inputs, text areas, selects, editable content, interactive ARIA widgets (menus, grids, listboxes, sliders and so on), modal dialogs, or areas marked <code>data-minisearch-nocapture</code>.</td></tr>
+<tr><td>Focus (2.1.2, 2.4.3, 2.4.7)</td><td>Focus is never trapped. Tab only moves between matches when you're in in-page mode and there are matches, and the box shows how to leave (<kbd>Esc</kbd>). Closing returns focus to where it was. All controls have visible focus styles.</td></tr>
+<tr><td>Focus not obscured (2.4.11)</td><td>If the idle hint would cover the focused element, it fades out. When the search is open, focused page elements are scrolled clear of the bar.</td></tr>
+<tr><td>Contrast (1.4.3, 1.4.11)</td><td>The default light and dark themes meet 4.5:1 for text and 3:1 for borders and focus rings. This is checked in the test suite. In Windows high contrast mode, system colours are used.</td></tr>
+<tr><td>Motion (2.2.2, 2.3.3)</td><td>The idle cursor blinks for no more than five seconds, and not at all with reduced motion. Reduced motion also turns off smooth scrolling and fades.</td></tr>
+<tr><td>Target size (2.5.8)</td><td>Buttons are at least 24 px, and 44 px on touch screens.</td></tr>
+<tr><td>Reflow and zoom (1.4.4, 1.4.10)</td><td>Sizes are in rem. The bar fits in a 320 px wide viewport without horizontal scrolling.</td></tr>
+<tr><td>Label in name (2.5.3)</td><td>The idle hint's accessible name always contains its visible prompt text, so voice control users can say what they see.</td></tr>
+<tr><td>Name, role, value (4.1.2)</td><td>All buttons have accessible names. Toggles use <code>aria-pressed</code>, and suggestions use <code>aria-selected</code> and <code>aria-activedescendant</code>.</td></tr>
+</tbody></table></div>
+
+<h2 id="testing">Testing</h2>
+<p>An automated end-to-end suite covers every requirement in the specification in desktop and touch profiles. It runs in Chromium locally, and the continuous integration setup adds Firefox and WebKit. Manual testing with NVDA, JAWS, VoiceOver and TalkBack is planned before version 1.0. Please <a href="https://github.com/davesant/minisearch/issues">report any barrier you find</a>.</p>
+</main>
+
+<footer class="bot"><div class="in">Minisearch v0.1.0 · MIT licence · <a href="https://github.com/davesant/minisearch">github.com/davesant/minisearch</a></div></footer>
+<script src="/minisearch/minisearch.min.js" defer data-prompt="type to search" data-index="/minisearch/minisearch-index.json" data-sitemap="false"></script>
+</body>
+</html>
