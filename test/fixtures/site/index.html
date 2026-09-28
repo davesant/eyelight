@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixture home</title><meta name="description" content="Test fixture for minisearch">
+<style>body{font:16px/1.5 sans-serif;margin:0 auto;max-width:40rem;padding:1rem}.spacer{height:1600px}#scroller{height:120px;overflow:auto;border:1px solid}#scroller .inner{height:900px;position:relative}#scroller .deep{position:absolute;top:800px}</style>
+</head><body>
+<nav><a href="/test/fixtures/site/">Home</a> <a href="/test/fixtures/site/guide/tuning.html">Tuning</a> navonlyword</nav>
+<main>
+<h1>Fixture home</h1>
+<p id="p1">The harmonica is a free reed instrument. Harmonica players love the harmonica.</p>
+<p id="p2">Visit the Café for coffee.</p>
+<p id="p3">hello
+      world across a line break</p>
+<p id="p4">split foo<b>bar</b> inline</p>
+<p id="p5">blockone</p><p>blocktwo</p>
+<p id="p6">wombat<br>quokka</p>
+<div id="p7"><span style="display:block">alphaword</span><span style="display:block">betaword</span></div>
+<closed-field id="cf"></closed-field>
+<p hidden>hiddenword should not match</p>
+<div style="display:none">hiddenword two</div>
+<div data-minisearch-ignore>ignoredword in excluded area</div>
+<label>Name <input id="field" type="text"></label>
+<textarea id="ta"></textarea>
+<div id="ce" contenteditable="true">editable</div>
+<div id="lb" role="listbox" tabindex="0">listbox widget</div>
+<div id="nc" data-minisearch-nocapture tabindex="0"><button id="ncbtn">inside no-capture</button></div>
+<button id="btn">A page button</button>
+<a id="link" href="#p1">A page link</a>
+<dialog id="dlg"><p>dialog text</p><button id="dlgbtn">ok</button></dialog>
+<div class="spacer"></div>
+<div id="scroller"><div class="inner"><span class="deep">deepword in a scroll container</span></div></div>
+<p id="far">farword at the bottom of the page. Harmonica again.</p>
+<div class="spacer"></div>
+<button id="lastbtn">Last button</button>
+</main>
+<script>
+  customElements.define('closed-field', class extends HTMLElement {
+    constructor() { super(); this.attachShadow({ mode: 'closed', delegatesFocus: true }).innerHTML = '<input aria-label="closed">'; }
+  });
+  window.hostKeys = [];
+  document.addEventListener('keydown', function (e) { if (e.key === 'j' && !e.target.closest('input,textarea')) { e.preventDefault(); window.hostKeys.push('j'); } });
+</script>
+<script src="/dist/minisearch.min.js" defer data-prompt="search" data-index="/test/fixtures/site/minisearch-index.json" data-sitemap="false" data-ignore-keys="k"></script>
+</body></html>
