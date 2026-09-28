@@ -6,7 +6,7 @@ import { writeFile } from 'node:fs/promises';
 import { buildIndex } from '../lib/build-index.js';
 
 const banner = { js: '/*! minisearch v0.1.0 | MIT | github.com/davesant/minisearch */' };
-const common = { bundle: true, target: ['chrome105', 'firefox115', 'safari16'], banner, legalComments: 'none' };
+const common = { bundle: true, target: ['chrome105', 'firefox115', 'safari16'], banner, legalComments: 'none', charset: 'utf8' };
 
 await mkdir('dist', { recursive: true });
 await build({ ...common, entryPoints: ['src/auto.js'], format: 'iife', minify: true, outfile: 'dist/minisearch.min.js' });
