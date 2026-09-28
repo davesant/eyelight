@@ -22,6 +22,7 @@ test('D2 live demo: suggestions come from the docs index, highlights on the page
   await page.goto(BASE);
   await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
   await page.keyboard.type('bend');
+  await page.keyboard.press('Enter');
   const opts = page.locator('eyelight-ui .opt');
   await expect(opts.first()).toContainText('Bending notes');
   await expect.poll(() => page.evaluate(() => (CSS.highlights.get('eyelight') || { size: 0 }).size)).toBeGreaterThan(0);
@@ -36,4 +37,13 @@ test('D2 theme buttons theme the page and the component together', async ({ page
   await page.click('[data-theme-btn=dark]');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.locator('eyelight-ui')).toHaveAttribute('data-theme', 'dark');
+});
+
+test('D2/NF3 the custom theme demo switches every default with data attributes', async ({ page }) => {
+  await page.goto(`${BASE}demo/custom-theme.html`);
+  await page.waitForFunction(() => window.Eyelight && window.Eyelight.element);
+  const c = await page.evaluate(() => { const k = window.Eyelight.config; return [k.position, k.startMode, k.caret, k.highlight]; });
+  expect(c).toEqual(['center', 'suggest', 'bar', 'solid']);
+  await page.keyboard.type('reed');
+  await expect(page.locator('eyelight-ui .opt').first()).toBeVisible(); // suggestions while typing
 });
