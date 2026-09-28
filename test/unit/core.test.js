@@ -37,7 +37,7 @@ test('CLI extractPage reads title, meta, headings with ids and skips nav', () =>
   const html = `<html><head><title>A &amp; B</title><meta name="description" content="Desc &quot;x&quot;">
   <meta name="keywords" content="one, two"></head><body><nav><h2 id="n">Nav</h2></nav>
   <main><h1>A &amp; B</h1><h2 id="s1">Section <em>one</em></h2><h3><a id="s2"></a>Two</h3><h2>No id</h2>
-  <div data-minisearch-ignore><h2 id="skip">Skip</h2></div><script>"<h2>x</h2>"</script></main></body></html>`;
+  <div data-eyelight-ignore><h2 id="skip">Skip</h2></div><script>"<h2>x</h2>"</script></main></body></html>`;
   const p = extractPage(html);
   assert.equal(p.title, 'A & B');
   assert.equal(p.description, 'Desc "x"');
@@ -51,7 +51,7 @@ test('CLI extractPage reads title, meta, headings with ids and skips nav', () =>
 
 test('CLI honours noindex', () => {
   assert.equal(extractPage('<meta name="robots" content="noindex"><title>x</title>'), null);
-  assert.equal(extractPage('<meta name="minisearch" content="noindex"><title>x</title>'), null);
+  assert.equal(extractPage('<meta name="eyelight" content="noindex"><title>x</title>'), null);
 });
 
 test('CLI decodes numeric entities', () => {
@@ -84,7 +84,7 @@ test('NF6.1 default light and dark themes meet WCAG AA contrast', async () => {
   const css = await readFile('src/styles.js', 'utf8');
   for (const name of ['LIGHT', 'DARK']) {
     const block = css.match(new RegExp(`const ${name} = \`([\\s\\S]*?)\``))[1];
-    const v = Object.fromEntries([...block.matchAll(/--ms-([\w-]+):(#[0-9a-f]{3,6})/gi)].map((m) => [m[1], m[2]]));
+    const v = Object.fromEntries([...block.matchAll(/--eyelight-([\w-]+):(#[0-9a-f]{3,6})/gi)].map((m) => [m[1], m[2]]));
     assert.ok(ratio(v.fg, v.bg) >= 4.5, `${name} fg`);
     assert.ok(ratio(v.muted, v.bg) >= 4.5, `${name} muted`);
     assert.ok(ratio(v.accent, v.bg) >= 3, `${name} accent (focus ring / selected outline)`);
