@@ -88,7 +88,6 @@ export function create(userCfg = {}) {
   }
   const minChars = Math.max(1, Number(cfg.minChars) || 2);
   const maxSugg = Math.max(0, Number(cfg.maxSuggestions) || 0);
-  const reduced = mq('(prefers-reduced-motion: reduce)');
   const coarse = mq('(hover: none) and (pointer: coarse)');
 
   // ---------- DOM ----------
@@ -368,7 +367,8 @@ export function create(userCfg = {}) {
   // F4.4: scroll nested containers, then the window, so the match sits above the bar.
   function scrollToRange(r) {
     if (!r) return;
-    const behavior = reduced.matches ? 'instant' : 'smooth';
+    // Read the preference fresh each time: cached MediaQueryLists can go stale (seen in WebKit).
+    const behavior = mq('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
     for (let p = r.startContainer.parentElement; p && p !== document.body && p !== document.documentElement; p = p.parentElement) {
       if (p.scrollHeight <= p.clientHeight + 1 && p.scrollWidth <= p.clientWidth + 1) continue;
       const cs = getComputedStyle(p);
